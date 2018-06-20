@@ -5,7 +5,7 @@
 //#define DUAL_MODE //Uncomment for DUAL_MODE UFR mode
 
 #define UART_BAUD 115200
-#define bufferSize 10240
+#define bufferSize 300
 #define timeout 5
 
 #define UART_BAUD1 115200
