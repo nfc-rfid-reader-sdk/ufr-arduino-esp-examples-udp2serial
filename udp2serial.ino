@@ -671,13 +671,15 @@ void transparent()
     if(checkChange(bufferTransparent, out)==false)
     {
     transparentSerial[transparentDevice - 1].write(bufferTransparent, lengthTransparent);
+          transparentSerial[transparentDevice - 1].flush();
+
     lengthTransparent = 0;
     }
     else
     {
       Serial.write(out, 7);
       Serial.flush();
-          lengthTransparent = 0;
+      lengthTransparent = 0;
 
     }
   }
@@ -706,6 +708,7 @@ void transparent()
       }
 
       Serial.write(buffer1, length1);
+      Serial.flush();
       length1 = 0;
     }
   }
