@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+    <title>ESP WiFi</title>
+
+    <link rel="stylesheet" href="style.css">
+
+
+    <script>
+
+
+        var img1 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JQAAgIMAAPn/AACA6QAAdTAAAOpgAAA6mAAAF2+SX8VGAAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAADdcAAA3XAUIom3gAAAAHdElNRQfiBRMGCTYH4TVKAAADHElEQVRIx93UX2jVdRjH8dc553fO2cxNmpVzLeaCtpoWgUi1stkfIuzPRd0mZhYkIkRB3gRFaApBJHaVJeJFQoWpRRddlGQklaEuNQ+12DC1XG7nnO1sO39/Xewc3XKVt/Xcfp/n/Xmez/P9fvnPR+Ty0lIQSIqLCuWNCzsvD5Ai0KzLIjdo1iih4qwtDtKJ4F9UGyzxiLtdr1F0yuE53yr7J0CKOkutdp+51T4LxuUVxYw5NFn+N4AULLDWCvMQ+sMxh5zwq4y8mAl9kwPM6EGKiG6v6hET6rfPXr3Syp2Xs4UUUQ/b7CYMe982vYogabbZEsoGjdQ6CGZQf9Qb2nHca/YYQ70uSy22QJOksv1eMjiDBym4yybtOOBF3wgldVvpXi1iFxLneHdGANq84kZ8ZZ2jaLXWSvNBXtqQCVEH9NUKgmn6CWv04EfrHcUimzwoEDrlc1846Zy8iLSxSwAp6LZCTNomB7HQVsuQ8YFtek3UjJsaU0eYZZUWfGi3UIuNlmHABrvkEHdVar4GWSeNd04HpGCxB9Bvm5y4NR7CgOftVZZwm8d1a1UnZ4O3U+Ff1xi1XDM+dQS3e1Iga6M9KuZa52nXVjOvdKugejemAK7Wg2H7FCQ9oRW77VIx1warJIXO+9l5Q3bWyqcCOnXgpCPocD/OeMeowLNWSRr1kR2OGVOSv2hncMGBLnNw2Hnc4Tp86TAWe0ZSzuvelL10D7UOojoESo4riVsirmi/MTGPacMeW77PrktM3FzXETmX/C6dDavPqAZImI8Jp3CFdmSdQJM7MWTn6cxzwcjq0vqwWa70XuPLs4dqypMR14iCNOo1IeN3XKMV/Y7tMNpVeqHSFibDptJT+eU5bdMAEQHKiohLoKCAWeqRlutTaQ+bJ5PDWZWu3kh+GiBURkwcJUVERTEig4xSTPS3SLqqVogO3BLWTQMUDKKkhGFfG3HYMH6x2XZvyY2rPxrbHskQycc+Dj6p019tvbbGHmv8YKss5lnoJ6eqEoGisFODaEP+nsqiyOn4Z6NnW5y5CKj+RHWKSjP9e//z+BPZPhDNMXY8CQAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAxOC0wNS0xOVQwNjowOTo1NC0wNDowMB4Jm8IAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMTgtMDUtMTlUMDY6MDk6NTQtMDQ6MDBvVCN+AAAAAElFTkSuQmCC';
+        var img2 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JQAAgIMAAPn/AACA6QAAdTAAAOpgAAA6mAAAF2+SX8VGAAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAADdcAAA3XAUIom3gAAAAHdElNRQfiBRMGCg4Ezt4XAAADZ0lEQVRIx93UX2jVdRjH8dfv/N2cc62xNJ2Jm7lKNMU/QSWZYA4KIYKgP1QolV50VYkRIRhhZl5IXaSkJV2U9Acpg0gq0i5cDtLU4miWf2pOXds829nZ2c75/bpw2marvK3n6gvf53k/n+f58P3yn4/gytIykJCWEhfqkxc1XhkgQ8JYN5puqvHGSAm12uBbGpH4l64V5rjHAlNUig+5PKFF6J8AGVJutdRitYM6++XlFcVlL5b/DSADdVZ4zHhEOhzS4pBTuhTE9Tp+YYARd5CBedZYKCly0k477Nep1HglLmQI3OUVM5D1oTfs1w/SKo2WVnJW9qKCxAjdF9moEUet9b4elLnBfHPVq5FW8rXnnBthBxmYbZ1G7POs3SIpt3jEIhOG5FbaPCIA11ptJlo8pRnjLLdMHSjo1CEv8I1jFwsSw/rHLdOEn63SjKleskRKpNVXvnDYWQWcl/8LYFD+Ukk91vsS19tosUCPj2zyXZiP+asPQ0dIe9Rk7PSeSK01Fgu0Wmub7gVKyXztqPHhmKAndTjMdY8AmOZutNmsS9xS9wqcttL2rcUtyd65A/eHt0V1UXnQV1xXtzEIs0MBGWgyEbvsxUyPS+u13vani3uq8yuKy8OJF3KjqtjN2WRYuFxBtTvF5HwsL+FBDfjU228V91yVW116MioTxTqDo9qDrsTW3wu1ei4D1LsJP9mHyZrQ7s1fO7fF88tKT0RlQT7+SXJL8kCQixVHFUrahu4gA42uxkFtmKMeezWv1zW9uDwqDwrx1ytePt8xQzM6hywuduk0RZnIDwpiZisT2n3gfFtQXBI2EPu8/NWBjtrE97PSD5U1jalm3mUuJExAv5Mo14CcQwXHxoS3C4Jc/J3us5Nipx8uvhBN0FfcUbHqYNtwBQlV6NeJtBr0OHNEqSa6jqA1sT/tXEPxmbA+SkdVpQf678urGQaISSAygLg0BvRlReXKkQ2yoeLEqG7QyFQ0bVJ8YBggUkIgiZJ+xMWrBDlZgu7YQEzsTDD4AoNS8MuJUnIYYED7IIicFr1+1D5d2W/JDYl3E69Vd6VUHIlvCtoJ+mOfJT9Iev4C7JKNd1jpuBe1YZzZjsmIFkrGcqlrCj3RCaPFywvzw1nBucSu3KmxzvwJGPzIKg3IM9LP97+OPwCcF0BtAfyDWwAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAxOC0wNS0xOVQwNjoxMDoxNC0wNDowMKfYYTIAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMTgtMDUtMTlUMDY6MTA6MTQtMDQ6MDDWhdmOAAAAAElFTkSuQmCC';
+        var img3 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JQAAgIMAAPn/AACA6QAAdTAAAOpgAAA6mAAAF2+SX8VGAAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAADdcAAA3XAUIom3gAAAAHdElNRQfiBRMGCh2AcJ/JAAADs0lEQVRIx+WUW2hcRRjHfzNnztk9zWWTNLVJ7NKkkcSS1ppqW0hLa6NWxQvog0UESxURKj4IVYpIhT4YUCko9aEQ8YJaSn1pQbRqUBCURmuIVMqUNGlNTDYJm8vu5iS75+wZH3Jr6rbmVZx5Geby+/7/+WY++M83sbxtGsAhQgQLg8cUpnF5AA2KaprYRAPVxHAI6aeN89AIqH+JWsw2HmUXdZQgF5a20s352aG6yfEI23mO+1k1N5XFw8NHkqRzfp+6Yew4B9hHNWBI8ju/cIF+xskhmWJg1kDBO9Ag2MoRWlEYrnCG03TLCRM2LCcLGgR7eJuNwCSnOE43/mPERVfUj4WlJkqgBicn1nK1EEAD7OE9GoFLvMkX/tQGKlbMbAh2hlvMOlNBhFB2RF7Nj84UEq/Rm/Vv2mijz+mdWjxOZcTdrT6RAyLAzHfxV7TZucElVnGYZuBXXkp3PkC2Jvtifn9YDSBmxBhJ4YH8wenNk7seoMHiWR4C+jiU7NxF5PaZtuBhbIwclB2yQ/1hDVtZg0yZbKqg/Lv1ZW10Rh/okY0UNahvCDEirT52W1a7sKVAFq614PAM64AvOXE0HLwleyS4DyGHVFvJR8m0YqV9scpdY2IiY3eH6UwBBXfqXm10Qt/7LTWWfUhkMTIR3RdXZax03B3qmOwSIyIlR+2DdbK0gIFXdKCN/lwX7cC9S/ZghGcfXGMXEyt3Xpf9i1lQH6xyiv9hIUYrFh5neqe08p8K60GejX445ttlU2/kXzBRjEwKLUYZs9tHc6vJXAeopQno49zXTK0NHwQxrtrTybgc3p9/3kTFtHXabne6paeCslxu7h1ea+BJ7WmjT1xym3D2Cg9jnS0tj+LeITVGzKi3YuXQepMs1BMFLrZPZ0S42bgY+WNq3OA8Ym4D+V30HX+80v55U2Qj485P6ZE6+gAWioRFDYIcf7Yw7pp6EJ64oIiVhtuNFJ71WWakRqaezp7KHc99On3MjQ/NHZQLSmKAz0SavGMqAE8mJPkysxbEsOqKMFgbvBzWGtsUBU/4e2coXwIQ2IDBz2FZIgIEZCEfNS6QEWlDeKuJz+s166vsYAnA4M9iHMzsP1HYID0xCWSMLxAJMa87lD1Dvr0EEDAGCGQ1tie6RFZelqMSN6GOqpP2u2VJh5Je9b4YEqHIWl/ZJx12LxYUDXAPh0nwWnhlPUXVQYvVW9mdCVcQkSmnMueFVylBRaa3hc1yTH2fGagisQgADZJyfFLzxfJ/1P4GHvGKGujvQp4AAAAldEVYdGRhdGU6Y3JlYXRlADIwMTgtMDUtMTlUMDY6MTA6MjktMDQ6MDBIgAcRAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDE4LTA1LTE5VDA2OjEwOjI5LTA0OjAwOd2/rQAAAABJRU5ErkJggg==';
+        var img4 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JQAAgIMAAPn/AACA6QAAdTAAAOpgAAA6mAAAF2+SX8VGAAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAADdcAAA3XAUIom3gAAAAHdElNRQfiBRMGCyDBA+KZAAACpUlEQVRIx93UT2zURRwF8M/+7yK1W6SkgI3ECiZWjBYRJMZGJOrByMVAjJpw8IIXa2LEeDKexAQjid6qwcQ2MWliuKDEmzFR/oSoNIpgJbZQt6Fmi3a3212648HftiC7gEd9c/hlZr7vzZt5vxn+84j9i9qUjLSkYFZRuHGBpE497rHOSm3Sas7Z63h98tpY6n5P6dOtVfyy8R9vRCBjixds0xH5nDOrpCqh4OiivWbostsuKxFMGXHMiHEFFXElY9fb9yafqwpqztrvEbdcsYHrJvO47wTBtAEbpaLxFit0u8udbr62wGNOCYKf7HITyNqg36CvnfarswYsb07vdUIQHNUnhrSHfWhMVVhoE3qb0TsdFATHbIr6bzoX0Wad970jjtgr15ie8LqKYNSjYJ1hFUHNuI88r1eXFTq0NFt/o1HBjN3iWOszNcEfDniwOWkRae8Jgk/k0GFITXDei1pByioP2GazpY0F7vOLIG8rEl5VFkx4VhIpW7zruLyLJvU3/iv2mBcMWoJeZwRFL0si5zVjl6UwIH01PeewoGgHkt4WBMOWoc07SoKaC77yqQ9sbrT+vcYFJ61Bt5OCKU8g7iVFQcmgrZZbItP4BHYqCYa0YIeS4JAc1jslKHtLeyPa4m28QxY/KIvZICv40jSetBaH7VOQtF6Pgm/8/k+BpFWoGENWN4pG0OohcUUfuyDuGW+41ZyD9pj4m1iPI6ENVdNIW4aiSbS7Db/5Fmu84nZprXZ6uu4gvvBNoaaKhAyqymiRxZ9msFpXVJ3SU/deFwguLcjMqyApiZKLmFHBpHxUPe9nl64UqEbHEkPJCWVnTCFvnyH7FTDqfXk1cw4ZvjqPPl84EJnstN3d0VMal1l4/DP69HvO6kaBxrQ3uyT/c/wFmALh470ZkEAAAAAldEVYdGRhdGU6Y3JlYXRlADIwMTgtMDUtMTlUMDY6MTE6MzItMDQ6MDBp7zhLAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDE4LTA1LTE5VDA2OjExOjMyLTA0OjAwGLKA9wAAAABJRU5ErkJggg==';
+
+
+        function g(i) {
+            return document.getElementById(i);
+        };
+
+        function p(t, l) {
+            if (confirm(t)) window.location = l;
+        };
+
+        function E(s) {
+            return document.createElement(s)
+        };var S = "setAttribute", A = "appendChild", H = "innerHTML", X, wl;
+
+        function setimg(dbm) {
+            if (dbm <= 50) {
+                return img4;
+            }
+            else if (dbm <= 60) {
+                return img3;
+            }
+            else if (dbm <= 70) {
+                return img2;
+            }
+            else if (dbm > 70) {
+                return img1;
+            }
+        }
+
+        function colors(dbm) {
+            if (dbm <= 50) {
+                return '#2ecc71';
+            }
+            else if (dbm <= 60) {
+                return '#f1c40f';
+            }
+            else if (dbm <= 70) {
+                return '#e67e22';
+            }
+            else if (dbm > 70) {
+                return '#c0392b';
+            }
+        }
+
+
+        function status() {
+            if (X) return;
+            X = new XMLHttpRequest();
+
+            X.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    X = 0;
+                    var st = this.responseText;
+                    document.getElementById("status1").style.cursor = "pointer";
+                    if (st.split('|')[0] != "Disconnected") {
+                        document.getElementById("status1").style.color = "#32CD32";
+                    }
+                    document.getElementById("status1").innerHTML = st.split('|')[0];
+
+                    document.getElementById("status1").onclick = function () {
+                        PoppyPopup.alert("IP address: " + st.split('|')[2] + "</br></br>MAC adress: " + st.split('|')[1], 'WiFi info', {buttonhide: 'yes'});
+
+                    };
+
+                }
+            };
+            X.open("GET", "status", false);
+            X.send();
+        };
+
+        function getInfo() {
+            X = new XMLHttpRequest();
+
+            X.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                      var st = JSON.parse(this.responseText);
+                    document.getElementById("status1").style.cursor = "pointer";
+                    if(st.status!= "disconnected")
+                    {
+                        document.getElementById("status1").style.color = "#32CD32";
+                    }
+                    document.getElementById("status1").innerHTML ="Connected to: " +  st.ssid;
+
+                    document.getElementById("status1").onclick = function (){
+                        PoppyPopup.alert("IP address: " + st.ip + "</br></br>MAC adress: " + st.mac, 'WiFi info',{okbutton: 'OK'});
+
+                    };
+
+                }
+            };
+            X.open("GET", "info", true);
+            X.setRequestHeader("Authorization", "Basic " + getCookie("token"));
+
+            X.send();
+        };
+
+
+        function scan() {
+            document.getElementById("net").innerHTML = "";
+            if (X) return;
+            X = new XMLHttpRequest();
+           // PoppyPopup.alert('', 'Scanning...', {buttonhide: 'yes'});
+            document.getElementById("modal-text").innerHTML  = "Scanning...";
+            document.getElementById("myModal").style.display="block";
+
+
+            //  document.getElementById("net").innerHTML = '<h3 id="scanning">Scanning...</h3>';
+            X.onreadystatechange = function () {
+
+                if (this.readyState == 4 && this.status == 200) {
+
+
+
+                    X = 0;
+
+                    var resp = JSON.parse(this.responseText);
+                    document.getElementById("net").innerHTML = "<h3 onclick='scan()' style='cursor: pointer'>AVAILABLE NETWORKS (" + resp.result.length + "): &#x21bb;</h3>";
+                    resp.result.forEach(function (e) {
+                        var parent = document.getElementById("net");
+                        var element = document.createElement("div");
+                        element.setAttribute("class", "element");
+                        var icon = document.createElement("div");
+                        icon.setAttribute("class", "icon");
+                        var img = document.createElement("img");
+                        var wifi = document.createElement("div");
+                        wifi.setAttribute("class", "wifi");
+                        var ssid = document.createElement("div");
+                        ssid.setAttribute("class", "ssid");
+                        var channel = document.createElement("div");
+                        channel.setAttribute("class", "channel");
+                        var bar = document.createElement("div");
+                        bar.setAttribute("class", "bar");
+                        var innerBar = document.createElement("div");
+                        innerBar.setAttribute("class", "innerbar");
+                        var connect = document.createElement("button");
+                        connect.innerHTML = "Connect";
+                        connect.setAttribute("class", "connect");
+                        connect.setAttribute("onclick", "onConnect('" + e.ssid + "', '"+ e.encryption +"')");
+                        var dbm = parseInt(e.signal);
+                        var perc = 100 * (1 - (30 + dbm) / (30 - 100));
+                        element.onclick = function () {
+                            var x = document.getElementsByClassName('connect');
+                            for (var k = 0; k < x.length; k++) {
+                                if (x[k] == connect) {
+                                    x[k].style.display = 'block';
+                                } else {
+                                    x[k].style.display = 'none';
+
+                                }
+
+
+                            }
+                        };
+
+                         element.setAttribute("ondblclick",  "onConnect('" + e.ssid + "', '"+ e.encryption +"')");
+
+
+                        img.setAttribute("width", "32");
+                        img.setAttribute("height", "32");
+                        img.src = setimg(Math.abs(dbm));
+                        ssid.innerHTML = e.ssid + " | " + e.encryption;
+                        channel.innerHTML = "CH " + e.channel;
+                        innerBar.style.width = perc + "%";
+                        innerBar.style.backgroundColor = colors(Math.abs(dbm));
+                        innerBar.innerHTML = dbm + " dBm";
+
+
+                        element.appendChild(icon);
+                        element.appendChild(wifi);
+                        element.appendChild(connect);
+                        icon.appendChild(img);
+                        wifi.appendChild(ssid);
+                        wifi.appendChild(channel);
+                        wifi.appendChild(bar);
+                        bar.appendChild(innerBar);
+
+                        parent.appendChild(element);
+
+                    });
+                    document.getElementById("myModal").style.display="none";
+
+                }
+            };
+            X.open("GET", "scan", true);
+            X.setRequestHeader("Authorization", "Basic " + getCookie("token"));
+            X.send();
+        };
+
+        function loaded() {
+            // status();
+            if (getCookie("token") == "") {
+                window.location = "/";
+            }
+            else {
+                scan();
+            }
+
+        }
+
+        function getCookie(cname) {
+            var name = cname + "=";
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        }
+
+        function onConnect(ssid, lock) {
+
+            if (lock != "Open") {
+                PoppyPopup.prompt('', 'Connect to ' + ssid, {
+                    type: 'password',
+                    placeholderText: 'Password',
+                    valueText: '',
+                    okbutton: 'Connect'
+                }, function (value) {
+                    document.getElementById("modal-text").innerHTML  = "Connecting...";
+                    document.getElementById("myModal").style.display="block";
+                    var xhttp = new XMLHttpRequest();
+                    xhttp.onreadystatechange = function() {
+                        if (this.readyState == 4 && this.status==200) {
+                            if(this.responseText=="3")
+                            {
+                                document.getElementById("myModal").style.display="none";
+
+                            }
+                            else
+                            {
+                                document.getElementById("modal-text").innerHTML  = "Cannot connect to " + ssid;
+                                sleep(3000);
+                                document.getElementById("myModal").style.display="none";
+
+                            }
+                        }
+                    };
+                    xhttp.open("POST", "changesta", true);
+                    xhttp.setRequestHeader("Authorization", "Basic " + getCookie("token"));
+                    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                    xhttp.send("ssid="+ ssid +"&pass=" + value);
+
+                });
+            }
+            else {
+
+            }
+
+
+        }
+
+        function sleep(miliseconds) {
+            var currentTime = new Date().getTime();
+            while (currentTime + miliseconds >= new Date().getTime()) {
+            }
+        }
+        function changeName() {
+
+            PoppyPopup.prompt('', 'Enter new AP SSID', {
+                type: 'text',
+                placeholderText: 'New SSID',
+                valueText: '',
+                okbutton: 'OK'
+            }, function (value) {
+                if (X) return;
+                X = new XMLHttpRequest();
+
+                X.onreadystatechange = function () {
+                    if (this.readyState == 4) {
+                        if (this.status == 200) {
+                            PoppyPopup.alert('Rebooting...', 'AP SSID successufully changed', {okbutton: 'OK'});
+
+
+                        } else {
+                            PoppyPopup.alert('Unable to change', 'Error', {okbutton: 'OK'});
+
+
+                        }
+
+                    }
+
+                };
+                X.open("GET", "wifi/configap?n=" + value, true);
+                X.send();
+            });
+
+        }
+
+        function changePassword() {
+
+            PoppyPopup.prompt('', 'Enter new AP Password', {
+                type: 'password',
+                placeholderText: 'New password',
+                valueText: '',
+                okbutton: 'OK'
+            }, function (value) {
+                if (X) return;
+                X = new XMLHttpRequest();
+
+                X.onreadystatechange = function () {
+                    if (this.readyState == 4) {
+                        if (this.status == 200) {
+                            PoppyPopup.alert('Rebooting....', 'Password successufully changed', {okbutton: 'OK'});
+
+
+                        } else {
+                            PoppyPopup.alert('Unable to change', 'Error', {okbutton: 'OK'});
+
+
+                        }
+
+                    }
+
+                };
+                X.open("GET", "wifi/configpass?p=" + value, true);
+                X.send();
+            });
+
+        }
+
+        function changeTransparent() {
+
+            document.getElementById("transparent-modal").style.display="block";
+
+
+        }
+    </script>
+
+    <style>
+
+        #scanning {
+            position: fixed;
+            display: block;
+            z-index: 10000;
+        }
+
+        body {
+            font-family: SansSerif, Calibri;
+            overflow-x: hidden;
+        }
+
+        #top {
+            position: fixed;
+            height: 50px;
+            background-color: #424242;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 10000;
+        }
+
+        h3 {
+            font-weight: normal;
+            margin-left: 20px;
+        }
+
+        h4 {
+            font-weight: normal;
+            margin-left: 30px;
+        }
+
+        #net {
+            position: relative;
+            top: 65px;
+            left: 50px;
+            color: #565656;
+        }
+
+        .wifi {
+            cursor: pointer;
+            position: relative;
+
+            width: 96%;
+            padding-bottom: 15px;
+            padding-top: 10px;
+            display: inline-block;
+        }
+
+        .element {
+            position: relative;
+            display: block;
+            width: 70%;
+            padding-left: 20px;
+            padding-top: 5px;
+            padding-bottom: 20px;
+            margin-bottom: 12px;
+        }
+
+        .element:hover {
+            background-color: #f5f5f5;
+        }
+
+        .icon {
+            display: inline-block;
+            position: relative;
+            top: -8px;
+
+        }
+
+        .ssid {
+            position: relative;
+            font-size: 14pt;
+            font-weight: bold;
+            color: black;
+            left: 15px;
+
+        }
+
+        .channel {
+            position: relative;
+            font-size: 12pt;
+            font-weight: normal;
+            color: #565656;
+            margin-top: 5px;
+            left: 15px;
+            display: inline-block;
+        }
+
+        .bar {
+            position: relative;
+            width: 89%;
+            background-color: #e4e4e4;
+            height: 15px;
+            left: 35px;
+            top: 1px;
+            display: inline-block;
+        }
+
+        .innerbar {
+            position: relative;
+            width: 7%;
+            background-color: #15438b;
+            height: 100%;
+            display: block;
+            color: white;
+            line-height: 100%;
+            text-align: right;
+            padding-right: 8px;
+
+        }
+
+        .connect {
+            display: none;
+            position: relative;
+            margin-left: auto;
+            margin-right: 3%;
+            background-color: #dcdcdc;
+            border: 2px solid #DCDCDC;
+            color: black;
+            padding: 4px 8px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 14px;
+            -webkit-transition-duration: 0.4s;
+            transition-duration: 0.4s;
+            cursor: pointer;
+
+        }
+
+        .connect:hover {
+            background-color: #555555;
+            color: white;
+        }
+
+        #changeAp {
+            display: inline-block;
+            background-color: transparent;
+            border: none;
+
+            color: white;
+            padding: 4px 8px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 14px;
+            float: right;
+
+            cursor: pointer;
+        }
+
+        #changeTransparent {
+            display: inline-block;
+            background-color: transparent;
+            border: none;
+            color: white;
+            padding: 4px 8px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 14px;
+            float: right;
+
+            cursor: pointer;
+        }
+
+        #changePort {
+            display: inline-block;
+            background-color: transparent;
+            border: none;
+            color: white;
+            padding: 4px 8px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 14px;
+            float: right;
+
+            cursor: pointer;
+        }
+
+        #changeLogin {
+            display: inline-block;
+            background-color: transparent;
+            border: none;
+            color: white;
+            padding: 4px 8px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 14px;
+            float: right;
+
+            cursor: pointer;
+        }
+
+
+        #status {
+            display: inline-block;
+
+            background-color: transparent;
+            border: none;
+            color: white;
+            padding: 4px 2px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 14px;
+            float: right;
+
+        }
+
+        #status1 {
+            display: inline-block;
+            background-color: transparent;
+            border: none;
+            color: red;
+            padding: 4px 2px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 14px;
+            float: right;
+            margin-right: 20px;
+
+        }
+
+        #topbtns {
+            margin-top: 10px;
+
+            display: block;
+            width: 100%;
+        }
+
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            padding-top: 20%; /* Location of the box */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: hidden; /* Enable scroll if needed */
+            background-color: rgb(0,0,0); /* Fallback color */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        }
+
+        /* Modal Content */
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 10px;
+            text-align: center;
+            font-size: 24px;
+            vertical-align: middle;
+            border: 1px solid #888;
+            width: 30%;
+
+        }
+
+
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 25px;
+            left: 10px;
+        }
+
+        .switch input {display:none;}
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 19px;
+            width: 19px;
+            left: 4px;
+            bottom: 3px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px #2196F3;
+        }
+
+        input:checked + .slider:before {
+            -webkit-transform: translateX(13px);
+            -ms-transform: translateX(13px);
+            transform: translateX(13px);
+        }
+
+        /* Rounded sliders */
+        .slider.round {
+            border-radius: 34px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+
+
+    </style>
+</head>
+<body onload="">
+<div id='top'>
+    <div id='topbtns'>
+        <div id='status1'>Disconnected</div>
+        <div id='status'>Status:</div>
+        <div id='ch angeAp' onclick='changeAp()'>AP settings</div>
+        <div id='changePort' onclick='changePort()'>Ports settings</div>
+        <div id='changeTransparent' onclick='changeTransparent()'>Transparent mode settings</div>
+        <div id='changeLogin' onclick='changeLogin()'>Login settings</div>
+
+
+
+    </div>
+
+</div>
+
+<div id='net'>
+
+</div>
+
+<div id="myModal" class="modal">
+
+    <div class="modal-content">
+        <p id="modal-text"></p>
+    </div>
+
+</div>
+
+<div id="transparent-modal" class="modal">
+
+    <div class="modal-content" id="transparent-modal-content">
+        <div class="modal-header">        <h5 style="margin-top: 5px">Transparent mode settings</h5>
+        </div>
+        <div>
+            <h6>Transparent mode: enabled </h6>
+            <h6>Transparent device: 1</h6>
+
+        </div>
+    </div>
+
+</div>
+
+
+<div id="port-modal" class="modal">
+
+    <div class="modal-content" id="port-modal-content">
+
+    </div>
+
+</div>
+
+
+<div id="login-modal" class="modal">
+
+    <div class="modal-content" id="login-modal-content">
+
+    </div>
+
+</div>
+
+
+<div id="ap-modal" class="modal">
+
+    <div class="modal-content" id="ap-modal-content">
+
+    </div>
+
+</div>
+
+
+</body>
+</html>

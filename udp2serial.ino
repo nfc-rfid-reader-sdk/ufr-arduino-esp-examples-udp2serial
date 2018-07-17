@@ -1,13 +1,12 @@
-#include <esp_wifi.h>
 #include <FS.h>
-#include <AsyncTCP.h>
-#include <ESPAsyncWebServer.h>
+#include "SPIFFS.h"
 #include <WiFi.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 #include <Preferences.h>
-
-#include "frontend.h"
+#include <WiFiClient.h>
+#include <WebServer.h>
+#include <ESPmDNS.h>
 
 #define DUAL_MODE //Uncomment for DUAL_MODE UFR mode
 
@@ -35,13 +34,14 @@ int SERIAL2_UDP_PORT;
 #define SET_DEFAULTPIN 13
 const char *ssid = "";
 const char *pw = "";
-
-AsyncWebServer server(80);
+WebServer server(80);
+WebServer server1(81);
+WebServer server2(82);
 
 const char *ssidAP = "uFR";
 const char *passwordAP = "password";
 
-HardwareSerial Serial1(1);
+//HardwareSerial Serial1(1);
 WiFiUDP udp;
 IPAddress remoteIp;
 uint16_t rPort;
@@ -51,7 +51,7 @@ IPAddress remoteIpDebug;
 uint16_t rPortDebug;
 
 #ifdef DUAL_MODE
-HardwareSerial Serial2(2);
+//HardwareSerial Serial2(2);
 WiFiUDP udp1;
 IPAddress remoteIp1;
 uint16_t rPort1;
@@ -59,8 +59,14 @@ uint16_t rPort1;
 
 uint8_t buffer1[bufferSize];
 uint8_t length1 = 0;
+
+uint8_t buffer1h[bufferSize];
+uint8_t length1h = 0;
+
 uint8_t buffer2[bufferSize];
 uint8_t length2 = 0;
+uint8_t buffer2h[bufferSize];
+uint8_t length2h = 0;
 
 uint8_t bufferTransparent[bufferSize];
 uint8_t lengthTransparent = 0;
@@ -101,351 +107,6 @@ uint8_t temprature_sens_read();
 }
 #endif
 
-
-void setDefault()
-{
-  preferences.begin("apsettings", false);
-  preferences.clear();
-  preferences.end();
-}
-
-void serverStart()
-{
-
-  server.begin();
-
-}
-
-void serverHandle()
-{
-  /*server.on("/toggleflashmode1", HTTP_GET, [](AsyncWebServerRequest * request) {
-    flashMode1 = !flashMode1;
-    request->send(200, "text/plain", String(flashMode1));
-    });
-
-    server.on("/toggleflashmode2", HTTP_GET, [](AsyncWebServerRequest * request) {
-    flashMode2 = !flashMode2;
-    request->send(200, "text/plain", String(flashMode2));
-    });*/
-
-  server.on("/toggletransparent", HTTP_GET, [](AsyncWebServerRequest * request) {
-    if (!request->authenticate(http_username.c_str(), http_password.c_str()))
-      return request->requestAuthentication();
-    preferences.begin("apsettings", false);
-    uint8_t t = preferences.getUInt("transparent", 1);
-    preferences.putUInt("transparent", !t);
-    preferences.end();
-    request->send(200, "text/plain", String(!t));
-    digitalWrite(LED_BUILTIN, LOW);
-
-    ESP.restart();
-  });
-
-  server.on("/changetransparent", HTTP_GET, [](AsyncWebServerRequest * request) {
-    if (!request->authenticate(http_username.c_str(), http_password.c_str()))
-      return request->requestAuthentication();
-    preferences.begin("apsettings", false);
-    uint8_t d = preferences.getUInt("device", 1);
-#ifdef DUAL_MODE
-    if (d == 1)
-    {
-      d = 2;
-      preferences.putUInt("device", d);
-    }
-    else
-    {
-      d = 1;
-      preferences.putUInt("device", d);
-    }
-#else
-    preferences.putUInt("device", 1);
-#endif
-    preferences.end();
-    request->send(200, "text/plain", String(d));
-    /*  digitalWrite(LED_BUILTIN, LOW);
-      ESP.restart();*/
-    transparentDevice = d;
-  });
-
-  server.on("/changeap", HTTP_POST, [](AsyncWebServerRequest * request) {
-    if (!request->authenticate(http_username.c_str(), http_password.c_str()))
-      return request->requestAuthentication();
-    int paramsNr = request->params();
-    String ap = "";
-    String ps = "";
-    for (int i = 0; i < paramsNr; i++)
-    {
-
-      AsyncWebParameter *p = request->getParam(i);
-      if (p->name() == "ssid")
-      {
-        ap = p->value();
-      }
-      else if (p->name() == "pass")
-      {
-        ps = p->value();
-      }
-    }
-
-    if (ap.length() > 0 && ps.length() > 7)
-    {
-      preferences.begin("apsettings", false);
-      preferences.putString("ssid", ap);
-      preferences.putString("password", ps);
-      preferences.end();
-      request->send(200, "text/plain", "1");
-      delay(100);
-      digitalWrite(LED_BUILTIN, LOW);
-
-      ESP.restart();
-    }
-    else
-    {
-      request->send(200, "text/plain", "0");
-    }
-  });
-
-   server.on("/changeauth", HTTP_POST, [](AsyncWebServerRequest * request) {
-    if (!request->authenticate(http_username.c_str(), http_password.c_str()))
-      return request->requestAuthentication();
-    int paramsNr = request->params();
-    String httpuser = "";
-    String httppass = "";
-    for (int i = 0; i < paramsNr; i++)
-    {
-
-      AsyncWebParameter *p = request->getParam(i);
-      if (p->name() == "username")
-      {
-        httpuser = p->value();
-      }
-      else if (p->name() == "password")
-      {
-        httppass = p->value();
-      }
-    }
-
-    if (httpuser.length() > 0 && httppass.length() > 0)
-    {
-      preferences.begin("apsettings", false);
-      preferences.putString("http_username", httpuser);
-      preferences.putString("http_password", httppass);
-       preferences.end();
-       request->send(200, "text/plain", "1");
-      http_username = httpuser;
-      http_password = httppass;
-     
-      
-     
-    }
-    else
-    {
-      request->send(200, "text/plain", "0");
-    }
-  });
-
-  server.on("/changesta", HTTP_POST, [](AsyncWebServerRequest * request) {
-    if (!request->authenticate(http_username.c_str(), http_password.c_str()))
-      return request->requestAuthentication();
-    int paramsNr = request->params();
-    String ap = "";
-    String ps = "";
-    for (int i = 0; i < paramsNr; i++)
-    {
-
-      AsyncWebParameter *p = request->getParam(i);
-      if (p->name() == "ssid")
-      {
-        ap = p->value();
-      }
-      else if (p->name() == "pass")
-      {
-        ps = p->value();
-      }
-    }
-
-    if (ap.length() > 0 && ps.length() > 7)
-    {
-      preferences.begin("apsettings", false);
-      preferences.putString("ssidSTA", ap);
-      preferences.putString("passwordSTA", ps);
-      preferences.end();
-      WiFi.disconnect(true);
-      delay(500);
-      WiFi.begin(ap.c_str(), ps.c_str());
-      delay(500);
-      uint8_t wifiTimeout = 10;
-      while (WiFi.status() != WL_CONNECTED && wifiTimeout > 0)
-      {
-        delay(1000);
-        wifiTimeout--;
-      }
-      request->send(200, "text/plain", (String)WiFi.status());
-
-      /*digitalWrite(LED_BUILTIN, LOW);
-        ESP.restart();*/
-    }
-    else
-    {
-      request->send(200, "text/plain", "6");
-    }
-  });
-
-  server.on("/scan", HTTP_GET, [](AsyncWebServerRequest * request) {
-    if (!request->authenticate(http_username.c_str(), http_password.c_str()))
-      return request->requestAuthentication();
-    int n = WiFi.scanNetworks();
-    String output = "[";
-    for (int i = 0; i < n; ++i)
-    {
-
-      output += "{ \"ssid\":\"" + WiFi.SSID(i) + "\",\"signal\":" + WiFi.RSSI(i) + ",\"encryption\":\"" + translateEncryptionType(WiFi.encryptionType(i)) + "\"},";
-    }
-
-    request->send(200, "application/json", output.substring(0, output.length() - 1) + "]");
-  });
-
-  server.on("/info", HTTP_GET, [](AsyncWebServerRequest * request) {
-    if (!request->authenticate(http_username.c_str(), http_password.c_str()))
-      return request->requestAuthentication();
-    String output = "[{\"status\":\"disconnected\"";
-    int n = WiFi.status();
-
-    if (n == 3)
-    {
-#ifdef DUAL_MODE
-      output = "[{\"status\":\"connected\",\"ssid\":\"" + WiFi.SSID() + "\",\"ip\":\"" + WiFi.localIP().toString() + "\",\"mac\":\"" + WiFi.macAddress() + "\",\"port1\":" + SERIAL1_UDP_PORT + ",\"port2\":" + SERIAL2_UDP_PORT;
-#else
-      output = "[{\"status\":\"connected\",\"ssid\":\"" + WiFi.SSID() + "\",\"ip\":\"" + WiFi.localIP().toString() + "\",\"mac\":\"" + WiFi.macAddress() + "\",\"port1\":" + SERIAL1_UDP_PORT;
-
-#endif
-    }
-    preferences.begin("apsettings", false);
-
-    String both = ", \"transparent\":" + String(preferences.getUInt("transparent", 1)) + ", \"device\":" + String(preferences.getUInt("device", 1)) + ", \"ap\":\"" + preferences.getString("ssid", String(ssidAP)).c_str() + "\", \"pass\":\"" + preferences.getString("password", String(passwordAP)).c_str() + "\"";
-    preferences.end();
-
-    request->send(200, "application/json", output + both + "}]");
-  });
-
-  server.on("/setport", HTTP_POST, [](AsyncWebServerRequest * request) {
-    if (!request->authenticate(http_username.c_str(), http_password.c_str()))
-      return request->requestAuthentication();
-    int paramsNr = request->params();
-    int p1;
-#ifdef DUAL_MODE
-    int p2;
-#endif
-    for (int i = 0; i < paramsNr; i++)
-    {
-      AsyncWebParameter *p = request->getParam(i);
-      if (p->name() == "port1")
-      {
-        p1 = p->value().toInt();
-      }
-#ifdef DUAL_MODE
-      else if (p->name() == "port2")
-      {
-        p2 = p->value().toInt();
-      }
-#endif
-    }
-#ifdef DUAL_MODE
-    if (p1 > 0 && p1 < 65536 && p2 > 0 && p2 < 65536 && p1 != p2)
-
-#else
-    if (p1 > 0 && p1 < 65536)
-#endif
-    {
-      preferences.begin("apsettings", false);
-      preferences.putInt("port1", p1);
-      udp.begin(p1);
-#ifdef DUAL_MODE
-      preferences.putInt("port2", p2);
-      udp1.begin(p2);
-
-#endif
-      preferences.end();
-
-      request->send(200, "text/plain", "1");
-      /*      digitalWrite(LED_BUILTIN, LOW);
-            ESP.restart();*/
-    }
-    else
-    {
-      request->send(200, "text/plain", "0");
-    }
-  });
-
-  server.on("/disconnect", HTTP_GET, [](AsyncWebServerRequest * request) {
-    if (!request->authenticate(http_username.c_str(), http_password.c_str()))
-      return request->requestAuthentication();
-    preferences.begin("apsettings", false);
-    preferences.putString("ssidSTA", "");
-    preferences.putString("passwordSTA", "");
-    preferences.end();
-    WiFi.disconnect(true);
-    delay(500);
-    request->send(200, "text/plain", "1");
-    /*   digitalWrite(LED_BUILTIN, LOW);
-       ESP.restart();*/
-  });
-
-  server.on("/restart", HTTP_GET, [](AsyncWebServerRequest * request) {
-    if (!request->authenticate(http_username.c_str(), http_password.c_str()))
-      return request->requestAuthentication();
-    request->send(200, "text/plain", "1");
-    digitalWrite(LED_BUILTIN, LOW);
-
-    ESP.restart();
-  });
-
-  server.on("/setdefault", HTTP_GET, [](AsyncWebServerRequest * request) {
-    if (!request->authenticate(http_username.c_str(), http_password.c_str()))
-      return request->requestAuthentication();
-    setDefault();
-    request->send(200, "text/plain", "1");
-    digitalWrite(LED_BUILTIN, LOW);
-
-    ESP.restart();
-  });
-
-  server.on("/alive", HTTP_GET, [](AsyncWebServerRequest * request) {
-    if (!request->authenticate(http_username.c_str(), http_password.c_str()))
-      return request->requestAuthentication();
-    request->send(200, "text/plain", "1");
-    digitalWrite(LED_BUILTIN, LOW);
-  });
-
-  server.on("/identify", HTTP_GET, [](AsyncWebServerRequest * request) {
-    if (!request->authenticate(http_username.c_str(), http_password.c_str()))
-      return request->requestAuthentication();
-    digitalWrite(LED_BUILTIN, LOW);
-    delay(1000);
-    digitalWrite(LED_BUILTIN, HIGH);
-    request->send(200, "text/plain", "1");
-  });
-}
-
-String translateEncryptionType(wifi_auth_mode_t encryptionType)
-{
-
-  switch (encryptionType)
-  {
-    case (WIFI_AUTH_OPEN):
-      return "Open";
-    case (WIFI_AUTH_WEP):
-      return "WEP";
-    case (WIFI_AUTH_WPA_PSK):
-      return "WPA_PSK";
-    case (WIFI_AUTH_WPA2_PSK):
-      return "WPA2_PSK";
-    case (WIFI_AUTH_WPA_WPA2_PSK):
-      return "WPA_WPA2_PSK";
-    case (WIFI_AUTH_WPA2_ENTERPRISE):
-      return "WPA2_ENTERPRISE";
-  }
-}
 void setup()
 {
 
@@ -469,21 +130,22 @@ void setup()
   Serial.begin(115200);
 
   pinMode(SERIAL1_RESETPIN, OUTPUT);
-  pinMode(18, INPUT);
+#ifdef DUAL_MODE
+  pinMode(SERIAL2_RESETPIN, OUTPUT);
+#endif
   digitalWrite(SERIAL1_RESETPIN, HIGH);
-  delay(100);
-  digitalWrite(SERIAL1_RESETPIN, LOW);
-  delay(200);
-  Serial1.begin(UART_BAUD1, SERIAL_PARAM1, SERIAL1_RXPIN, SERIAL1_TXPIN);
-
 #ifdef DUAL_MODE
   digitalWrite(SERIAL2_RESETPIN, HIGH);
-  delay(10);
+#endif
+  delay(100);
+  digitalWrite(SERIAL1_RESETPIN, LOW);
+#ifdef DUAL_MODE
   digitalWrite(SERIAL2_RESETPIN, LOW);
+#endif
   delay(200);
+  Serial1.begin(UART_BAUD1, SERIAL_PARAM1, SERIAL1_RXPIN, SERIAL1_TXPIN);
+#ifdef DUAL_MODE
   Serial2.begin(UART_BAUD2, SERIAL_PARAM2, SERIAL2_RXPIN, SERIAL2_TXPIN);
-  pinMode(SERIAL2_RESETPIN, OUTPUT);
-  pinMode(19, INPUT);
 #endif
 
   preferences.begin("apsettings", false);
@@ -505,7 +167,7 @@ void setup()
   SERIAL2_UDP_PORT = preferences.getInt("port2", 8882);
 #endif
   preferences.end();
-  uint8_t wifiTimeout = 30;
+  uint8_t wifiTimeout = 10;
   while (WiFi.status() != WL_CONNECTED && wifiTimeout > 0)
   {
     delay(1000);
@@ -522,12 +184,18 @@ void setup()
 
   udp1.begin(SERIAL2_UDP_PORT);
 #endif
-
+  SPIFFS.begin();
   serverStart();
-  serverHandle();
+
+
+  serverStart1();
+
+
+  serverStart2();
+
 
   ArduinoOTA.setHostname("uFR_Nano");
-
+  ArduinoOTA.setPassword(http_password.c_str());
   ArduinoOTA
   .onStart([]() {
     String type;
@@ -580,6 +248,680 @@ void setup()
   else
   {
     digitalWrite(LED_BUILTIN, LOW);
+  }
+}
+
+void loop()
+{
+  server.handleClient();
+  server1.handleClient();
+  server2.handleClient();
+  ArduinoOTA.handle();
+
+  if (transparentMode)
+  {
+    transparent();
+  }
+  // else
+  // {
+  if (!flashMode1)
+  {
+
+    int packetSize = udp.parsePacket();
+
+    if (packetSize > 0)
+    {
+      /*  Serial.println("udp.remotePort()");
+        Serial.println(udp.remotePort());
+        Serial.println("RECIEVED");
+        Serial.println("packetSize");
+        Serial.println(packetSize);*/
+
+      sendFrom = 1;
+      remoteIp = udp.remoteIP();
+      rPort = udp.remotePort();
+
+      /* Serial.println("remoteIP");
+        Serial.println(remoteIp);
+        Serial.println("remotePort");
+        Serial.println(rPort);   */
+
+      udp.read(buffer1, bufferSize);
+      if (!debug(buffer1, 1))
+      {
+        //Serial1.flush();
+        length2 = 0;
+        Serial1.setTimeout(300);
+        Serial1.flush();
+        Serial1.write(buffer1, packetSize);
+      }
+    }
+
+
+    if (Serial1.available())
+    {
+      Serial1.setTimeout(5);
+      uint8_t b[1];
+      while (Serial1.readBytes(b, 1))
+      {
+
+        buffer2[length2] = b[0];
+        length2++;
+      }
+      /* Serial.println("length2");
+        Serial.println(length2);  */
+
+      int packetSize = udp.parsePacket();
+      udp.beginPacket(remoteIp, rPort);
+      udp.write(buffer2, length2);
+      udp.endPacket();
+      sendFrom = 1;
+      // Serial.println("SENT");
+    }
+
+  }
+  else
+  {
+    uint8_t reject[7] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+    int packetSize = udp.parsePacket();
+    if (packetSize > 0)
+    {
+      remoteIp = udp.remoteIP();
+      rPort = udp.remotePort();
+      udp.read(buffer1, bufferSize);
+      udp.beginPacket(remoteIp, rPort);
+      udp.write(reject, 7);
+      udp.endPacket();
+    }
+  }
+
+#ifdef DUAL_MODE
+  if (!flashMode2)
+  {
+    int packetSize1 = udp1.parsePacket();
+    if (packetSize1 > 0)
+    {
+     
+      remoteIp1 = udp1.remoteIP();
+      rPort1 = udp1.remotePort();
+      if (!flashMode2)
+      {
+        udp1.read(buffer11, bufferSize);
+        if (!debug(buffer11, 2))
+        {
+          length21 = 0;
+          Serial2.setTimeout(300);
+          Serial2.flush();
+          Serial2.write(buffer11, packetSize1);
+        }
+      }
+    }
+
+    if (Serial2.available())
+    {
+      Serial2.setTimeout(5);
+      uint8_t b[1];
+      while (Serial2.readBytes(b, 1))
+      {
+
+        buffer21[length21] = b[0];
+        length21++;
+      }
+      /* Serial.println("length2");
+        Serial.println(length2);  */
+
+      int packetSize1 = udp1.parsePacket();
+      udp1.beginPacket(remoteIp1, rPort1);
+      udp1.write(buffer21, length21);
+      udp1.endPacket();
+      sendFrom = 1;
+      // Serial.println("SENT");
+    }
+
+  }
+  else
+  {
+    uint8_t reject[7] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+    int packetSize1 = udp1.parsePacket();
+    if (packetSize1 > 0)
+    {
+      remoteIp1 = udp1.remoteIP();
+      rPort1 = udp1.remotePort();
+      udp1.read(buffer21, bufferSize);
+      udp1.beginPacket(remoteIp1, rPort1);
+      udp1.write(reject, 7);
+      udp1.endPacket();
+    }
+  }
+#endif
+}
+
+void setDefault()
+{
+  preferences.begin("apsettings", false);
+  preferences.clear();
+  preferences.end();
+}
+
+void serverStart()
+{
+  MDNS.begin("esp32");
+
+  server.begin();
+  serverHandle();
+}
+
+void serverStart1()
+{
+  server1.on("/", serverHandle1);
+  server1.begin();
+}
+
+void serverStart2()
+{
+  server2.on("/", serverHandle2);
+  server2.begin();
+}
+
+int parseString(String str, uint8_t *buff)
+{
+  str.toUpperCase();
+  if (str.length() % 2 != 0)
+  {
+
+    return 0;
+  }
+  else
+  {
+
+    int k = 0;
+    for (int i = 0; i < str.length(); i += 2)
+    {
+      /* Serial.println("K");
+        Serial.println(k);
+        if ((uint8_t)str[i] < 48 || (uint8_t)str[i] > 57 || (uint8_t)str[i + 1] < 48 || (uint8_t)str[i + 1] > 57)
+        {
+        Serial.println("ovde");
+        return 0;
+        }
+        if ((uint8_t)str[i] < 65 || (uint8_t)str[i] > 70 || (uint8_t)str[i + 1] < 65 || (uint8_t)str[i + 1] > 70)
+        {
+        Serial.println("ovde1");
+        return 0;
+        }*/
+      buff[k] = strtoul(str.substring(i, i + 2).c_str(), NULL, 16);
+      k++;
+    }
+    return 1;
+  }
+}
+void serverHandle()
+{
+  /*server.on("/toggleflashmode1", HTTP_GET, [](AsyncWebServerRequest * request) {
+    flashMode1 = !flashMode1;
+    request->send(200, "text/plain", String(flashMode1));
+    });
+
+    server.on("/toggleflashmode2", HTTP_GET, [](AsyncWebServerRequest * request) {
+    flashMode2 = !flashMode2;
+    request->send(200, "text/plain", String(flashMode2));
+    });*/
+  server.serveStatic("/", SPIFFS, "/www/login.html");
+  server.serveStatic("/main", SPIFFS, "/www/main.html");
+  server.serveStatic("/jquery.min.js", SPIFFS, "/www/jquery.min.js");
+  server.serveStatic("/script.js", SPIFFS, "/www/script.js");
+  server.serveStatic("/style.css", SPIFFS, "/www/style.css");
+  server.serveStatic("/jquery.dialog.min.css", SPIFFS, "/www/jquery.dialog.min.css");
+  server.serveStatic("/jquery.dialog.min.js", SPIFFS, "/www/jquery.dialog.min.js");
+
+  server.on("/toggletransparent", HTTP_GET, []() {
+    if (!server.authenticate(http_username.c_str(), http_password.c_str()))
+      return server.requestAuthentication();
+    preferences.begin("apsettings", false);
+    uint8_t t = preferences.getUInt("transparent", 1);
+    preferences.putUInt("transparent", !t);
+    preferences.end();
+    transparentMode = !t;
+    server.send(200, "text/plain", String(!t));
+
+  });
+
+  server.on("/changetransparent", HTTP_GET, []() {
+    if (!server.authenticate(http_username.c_str(), http_password.c_str()))
+      return server.requestAuthentication();
+    preferences.begin("apsettings", false);
+    uint8_t d = preferences.getUInt("device", 1);
+#ifdef DUAL_MODE
+    if (d == 1)
+    {
+      d = 2;
+      preferences.putUInt("device", d);
+    }
+    else
+    {
+      d = 1;
+      preferences.putUInt("device", d);
+    }
+#else
+    preferences.putUInt("device", 1);
+#endif
+    preferences.end();
+    transparentDevice = d;
+    server.send(200, "text/plain", String(d));
+    /*  digitalWrite(LED_BUILTIN, LOW);
+      ESP.restart();*/
+
+  });
+
+  server.on("/changeap", HTTP_POST, []() {
+    if (!server.authenticate(http_username.c_str(), http_password.c_str()))
+      return server.requestAuthentication();
+    int paramsNr = server.args();
+    String ap = "";
+    String ps = "";
+    for (int i = 0; i < paramsNr; i++)
+    {
+
+      if (server.argName(i) == "ssid")
+      {
+        ap = server.arg(i);
+      }
+      else if (server.argName(i) == "pass")
+      {
+        ps = server.arg(i);
+      }
+    }
+
+    if (ap.length() > 0 && ps.length() > 7)
+    {
+      preferences.begin("apsettings", false);
+      preferences.putString("ssid", ap);
+      preferences.putString("password", ps);
+      preferences.end();
+      server.send(200, "text/plain", "1");
+      delay(100);
+      digitalWrite(LED_BUILTIN, LOW);
+
+      ESP.restart();
+    }
+    else
+    {
+      server.send(200, "text/plain", "0");
+    }
+  });
+
+  server.on("/changeauth", HTTP_POST, []() {
+    if (!server.authenticate(http_username.c_str(), http_password.c_str()))
+      return server.requestAuthentication();
+    int paramsNr = server.args();
+    String httpuser = "";
+    String httppass = "";
+    for (int i = 0; i < paramsNr; i++)
+    {
+
+
+      if (server.argName(i) == "username")
+      {
+        httpuser = server.arg(i);
+      }
+      else if (server.argName(i) == "password")
+      {
+        httppass = server.arg(i);
+      }
+    }
+
+    if (httpuser.length() > 0 && httppass.length() > 0)
+    {
+      preferences.begin("apsettings", false);
+      preferences.putString("http_username", httpuser);
+      preferences.putString("http_password", httppass);
+      preferences.end();
+      server.send(200, "text/plain", "1");
+      http_username = httpuser;
+      http_password = httppass;
+    }
+    else
+    {
+      server.send(200, "text/plain", "0");
+    }
+  });
+
+  server.on("/auth", HTTP_POST, []() {
+    int paramsNr = server.args();
+    String httpuser = "";
+    String httppass = "";
+    for (int i = 0; i < paramsNr; i++)
+    {
+
+
+      if (server.argName(i) == "username")
+      {
+        httpuser = server.arg(i);
+      }
+      else if (server.argName(i) == "password")
+      {
+        httppass = server.arg(i);
+      }
+    }
+
+    preferences.begin("apsettings", false);
+    if (preferences.getString("http_username", "ufr") == httpuser && preferences.getString("http_password", "ufr") == httppass)
+    {
+      server.send(200, "text/plain", "1");
+    }
+    else
+    {
+      server.send(403, "text/plain", "1");
+    }
+
+    preferences.end();
+  });
+
+  server.on("/changesta", HTTP_POST, []() {
+    if (!server.authenticate(http_username.c_str(), http_password.c_str()))
+      return server.requestAuthentication();
+    int paramsNr = server.args();
+    String ap = "";
+    String ps = "";
+    for (int i = 0; i < paramsNr; i++)
+    {
+
+
+      if (server.argName(i) == "ssid")
+      {
+        ap = server.arg(i);
+      }
+      else if (server.argName(i) == "pass")
+      {
+        ps = server.arg(i);
+      }
+    }
+
+    if (ap.length() > 0 && ps.length() > 7)
+    {
+      preferences.begin("apsettings", false);
+      preferences.putString("ssidSTA", ap);
+      preferences.putString("passwordSTA", ps);
+      preferences.end();
+      WiFi.disconnect(true);
+      delay(500);
+      WiFi.begin(ap.c_str(), ps.c_str());
+      delay(500);
+      uint8_t wifiTimeout = 10;
+      while (WiFi.status() != WL_CONNECTED && wifiTimeout > 0)
+      {
+        delay(1000);
+        wifiTimeout--;
+      }
+      if (WiFi.status() != WL_CONNECTED && wifiTimeout <= 0)
+      {
+        server.send(200, "text/plain", "0");
+      }
+      else if (WiFi.status() == WL_CONNECTED)
+      {
+        server.send(200, "text/plain", "1");
+      }
+
+      /*digitalWrite(LED_BUILTIN, LOW);
+        ESP.restart();*/
+    }
+    else
+    {
+      server.send(200, "text/plain", "6");
+    }
+  });
+
+  server.on("/scan", HTTP_GET, []() {
+    if (!server.authenticate(http_username.c_str(), http_password.c_str()))
+      return server.requestAuthentication();
+    int n = WiFi.scanNetworks();
+    String output = "{\"result\":[";
+    for (int i = 0; i < n; ++i)
+    {
+
+      output += "{  \"ssid\":\"" + WiFi.SSID(i) + "\",\"signal\":" + WiFi.RSSI(i) + ",\"channel\":" + WiFi.channel(i) + ",\"encryption\":\"" + translateEncryptionType(WiFi.encryptionType(i)) + "\"},";
+    }
+
+    server.send(200, "application/json", output.substring(0, output.length() - 1) + "]}");
+  });
+
+  server.on("/info", HTTP_GET, []() {
+    if (!server.authenticate(http_username.c_str(), http_password.c_str()))
+      return server.requestAuthentication();
+    String output = "{\"status\":\"disconnected\"";
+    int n = WiFi.status();
+
+    if (n == 3)
+    {
+#ifdef DUAL_MODE
+      output = "{\"status\":\"connected\",\"ssid\":\"" + WiFi.SSID() + "\",\"ip\":\"" + WiFi.localIP().toString() + "\",\"mac\":\"" + WiFi.macAddress() + "\",\"port1\":" + SERIAL1_UDP_PORT + ",\"port2\":" + SERIAL2_UDP_PORT;
+#else
+      output = "{\"status\":\"connected\",\"ssid\":\"" + WiFi.SSID() + "\",\"ip\":\"" + WiFi.localIP().toString() + "\",\"mac\":\"" + WiFi.macAddress() + "\",\"port1\":" + SERIAL1_UDP_PORT;
+
+#endif
+    }
+    preferences.begin("apsettings", false);
+
+    String both = ", \"transparent\":" + String(preferences.getUInt("transparent", 1)) + ", \"device\":" + String(preferences.getUInt("device", 1)) + ", \"ap\":\"" + preferences.getString("ssid", String(ssidAP)).c_str() + "\", \"pass\":\"" + preferences.getString("password", String(passwordAP)).c_str() + "\"";
+    preferences.end();
+
+    server.send(200, "application/json", output + both + "}");
+  });
+
+  server.on("/setport", HTTP_POST, []() {
+    if (!server.authenticate(http_username.c_str(), http_password.c_str()))
+      return server.requestAuthentication();
+    int paramsNr = server.args();
+    int p1;
+#ifdef DUAL_MODE
+    int p2;
+#endif
+    for (int i = 0; i < paramsNr; i++)
+    {
+
+      if (server.argName(i) == "port1")
+      {
+        p1 = server.arg(i).toInt();
+      }
+#ifdef DUAL_MODE
+      else if (server.argName(i) == "port2")
+      {
+        p2 = server.arg(i).toInt();
+      }
+#endif
+    }
+#ifdef DUAL_MODE
+    if (p1 > 0 && p1 < 65536 && p2 > 0 && p2 < 65536 && p1 != p2)
+
+#else
+    if (p1 > 0 && p1 < 65536)
+#endif
+    {
+      preferences.begin("apsettings", false);
+      preferences.putInt("port1", p1);
+      udp.begin(p1);
+#ifdef DUAL_MODE
+      preferences.putInt("port2", p2);
+      udp1.begin(p2);
+
+#endif
+      preferences.end();
+
+      server.send(200, "text/plain", "1");
+      /*      digitalWrite(LED_BUILTIN, LOW);
+        ESP.restart();*/
+    }
+    else
+    {
+      server.send(200, "text/plain", "0");
+    }
+  });
+
+  server.on("/disconnect", HTTP_GET, []() {
+    if (!server.authenticate(http_username.c_str(), http_password.c_str()))
+      return server.requestAuthentication();
+    preferences.begin("apsettings", false);
+    preferences.putString("ssidSTA", "");
+    preferences.putString("passwordSTA", "");
+    preferences.end();
+    WiFi.disconnect(true);
+    delay(500);
+    server.send(200, "text/plain", "1");
+    /*   digitalWrite(LED_BUILTIN, LOW);
+      ESP.restart();*/
+  });
+
+  server.on("/restart", HTTP_GET, []() {
+    if (!server.authenticate(http_username.c_str(), http_password.c_str()))
+      return server.requestAuthentication();
+    server.send(200, "text/plain", "1");
+    digitalWrite(LED_BUILTIN, LOW);
+
+    ESP.restart();
+  });
+
+  server.on("/setdefault", HTTP_GET, []() {
+    if (!server.authenticate(http_username.c_str(), http_password.c_str()))
+      return server.requestAuthentication();
+    setDefault();
+    server.send(200, "text/plain", "1");
+    digitalWrite(LED_BUILTIN, LOW);
+
+    ESP.restart();
+  });
+
+  server.on("/alive", HTTP_GET, []() {
+    if (!server.authenticate(http_username.c_str(), http_password.c_str()))
+      return server.requestAuthentication();
+    server.send(200, "text/plain", "1");
+    digitalWrite(LED_BUILTIN, LOW);
+  });
+
+  server.on("/identify", HTTP_GET, []() {
+    if (!server.authenticate(http_username.c_str(), http_password.c_str()))
+      return server.requestAuthentication();
+    digitalWrite(LED_BUILTIN, LOW);
+    delay(1000);
+    digitalWrite(LED_BUILTIN, HIGH);
+    server.send(200, "text/plain", "1");
+  });
+
+}
+
+void serverHandle1()
+{
+
+  sendFrom = 1;
+  Serial1.setTimeout(300);
+  int paramsNr = server1.args();
+  String response = "";
+
+  if (paramsNr != 1)
+  {
+    server1.send(400);
+  }
+  else
+  {
+
+    if (parseString(server1.arg(0), buffer1h))
+    {
+      Serial1.flush();
+
+      Serial1.write(buffer1h, server1.arg(0).length() / 2);
+
+      //delay(10);
+
+
+      uint8_t b[1];
+      while (Serial1.readBytes(b, 1))
+      {
+        Serial1.setTimeout(5);
+        response += String(b[0], HEX);
+      }
+      /* Serial.println("length2");
+        Serial.println(length2);  */
+
+
+
+      sendFrom = 1;
+      // Serial.println("SENT");
+
+      server1.send(200, "text/plain", response);
+    }
+    else
+    {
+      server1.send(400);
+    }
+  }
+
+}
+
+void serverHandle2()
+{
+
+  sendFrom = 1;
+  Serial2.setTimeout(300);
+  int paramsNr = server2.args();
+  String response = "";
+
+  if (paramsNr != 1)
+  {
+    server2.send(400);
+  }
+  else
+  {
+
+    if (parseString(server2.arg(0), buffer2h))
+    {
+      Serial2.flush();
+
+      Serial2.write(buffer2h, server2.arg(0).length() / 2);
+
+
+
+
+      uint8_t b[1];
+      while (Serial2.readBytes(b, 1))
+      {
+        Serial2.setTimeout(5);
+        response += String(b[0], HEX);
+      }
+      /* Serial.println("length2");
+        Serial.println(length2);  */
+
+
+
+      sendFrom = 1;
+      // Serial.println("SENT");
+
+      server2.send(200, "text/plain", response);
+    }
+    else
+    {
+      server2.send(400);
+    }
+  }
+}
+
+
+
+String translateEncryptionType(wifi_auth_mode_t encryptionType)
+{
+
+  switch (encryptionType)
+  {
+    case (WIFI_AUTH_OPEN):
+      return "Open";
+    case (WIFI_AUTH_WEP):
+      return "WEP";
+    case (WIFI_AUTH_WPA_PSK):
+      return "WPA_PSK";
+    case (WIFI_AUTH_WPA2_PSK):
+      return "WPA2_PSK";
+    case (WIFI_AUTH_WPA_WPA2_PSK):
+      return "WPA_WPA2_PSK";
+    case (WIFI_AUTH_WPA2_ENTERPRISE):
+      return "WPA2_ENTERPRISE";
   }
 }
 
@@ -768,8 +1110,9 @@ void transparent()
     }
     else
     {
-      Serial.write(out, 7);
       Serial.flush();
+      Serial.write(out, 7);
+
       lengthTransparent = 0;
     }
   }
@@ -796,175 +1139,10 @@ void transparent()
           }
         }
       }
-
-      Serial.write(buffer1, length1);
       Serial.flush();
+      Serial.write(buffer1, length1);
+
       length1 = 0;
     }
   }
 }
-
-void loop()
-{
-
-  ArduinoOTA.handle();
-
-  if (transparentMode)
-  {
-    transparent();
-  }
-  // else
-  // {
-  if (!flashMode1)
-  {
-    udp.flush();
-    //delay(10);
-    int packetSize = udp.parsePacket();
-
-    if (packetSize > 0)
-    {
-      /*  Serial.println("udp.remotePort()");
-        Serial.println(udp.remotePort());
-        Serial.println("RECIEVED");
-        Serial.println("packetSize");
-        Serial.println(packetSize);*/
-
-      sendFrom = 1;
-      remoteIp = udp.remoteIP();
-      rPort = udp.remotePort();
-
-      /* Serial.println("remoteIP");
-        Serial.println(remoteIp);
-        Serial.println("remotePort");
-        Serial.println(rPort);   */
-
-      udp.read(buffer1, bufferSize);
-      if (!debug(buffer1, 1))
-      {
-        Serial1.write(buffer1, packetSize);
-      }
-    }
-    if (sendFrom == 1)
-    {
-
-      if (Serial1.available())
-      {
-        while (1)
-        {
-          if (Serial1.available())
-          {
-            buffer2[length2] = Serial1.read();
-
-            if (length2 < bufferSize - 1)
-            {
-              length2++;
-            }
-          }
-          else
-          {
-            delay(timeout);
-            if (!Serial1.available())
-            {
-              break;
-            }
-          }
-        }
-        /* Serial.println("length2");
-          Serial.println(length2);  */
-        int packetSize = udp.parsePacket();
-        udp.beginPacket(remoteIp, rPort);
-        udp.write(buffer2, length2);
-        udp.endPacket();
-        length2 = 0;
-        // Serial.println("SENT");
-      }
-    }
-  }
-  else
-  {
-    uint8_t reject[7] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
-    int packetSize = udp.parsePacket();
-    if (packetSize > 0)
-    {
-      remoteIp = udp.remoteIP();
-      rPort = udp.remotePort();
-      udp.read(buffer1, bufferSize);
-      udp.beginPacket(remoteIp, rPort);
-      udp.write(reject, 7);
-      udp.endPacket();
-    }
-  }
-
-#ifdef DUAL_MODE
-  if (!flashMode2)
-  {
-    int packetSize1 = udp1.parsePacket();
-    if (packetSize1 > 0)
-    {
-
-      sendFrom = 1;
-      remoteIp1 = udp1.remoteIP();
-      rPort1 = udp1.remotePort();
-      if (!flashMode2)
-      {
-        udp1.read(buffer2, bufferSize);
-        if (!debug(buffer2, 2))
-        {
-          Serial2.write(buffer2, packetSize1);
-        }
-      }
-      /* else
-        {
-        flashBuffer2 = (uint8_t*)malloc(64000);
-        udp.read(flashBuffer2, 64000);
-        flash(2, packetSize1);
-        }*/
-    }
-    if (sendFrom == 1)
-    {
-      if (Serial2.available())
-      {
-        while (1)
-        {
-          if (Serial2.available())
-          {
-            buffer21[length21] = Serial2.read();
-            if (length21 < bufferSize - 1)
-            {
-              length21++;
-            }
-          }
-          else
-          {
-            delay(timeout);
-            if (!Serial2.available())
-            {
-              break;
-            }
-          }
-        }
-
-        udp1.beginPacket(remoteIp1, rPort1);
-        udp1.write(buffer21, length21);
-        udp1.endPacket();
-        length21 = 0;
-      }
-    }
-  }
-  else
-  {
-    uint8_t reject[7] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
-    int packetSize1 = udp1.parsePacket();
-    if (packetSize1 > 0)
-    {
-      remoteIp1 = udp1.remoteIP();
-      rPort1 = udp1.remotePort();
-      udp1.read(buffer2, bufferSize);
-      udp1.beginPacket(remoteIp1, rPort1);
-      udp1.write(reject, 7);
-      udp1.endPacket();
-    }
-  }
-#endif
-}
-
