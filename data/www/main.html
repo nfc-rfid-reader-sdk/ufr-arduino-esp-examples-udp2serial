@@ -18,13 +18,58 @@
 </div>
 <div id='top'>
 
+    <h4 id="logo" onclick="informations()">uFR Nano configurator</h4>
+    <h4 id="settings" onclick="change()">Other settings</h4>
+
 
 </div>
-<div id='connected'>
 
-</div>
-<div id='net'>
+<div id="wifi">
+    <div id='connected'>
 
+    </div>
+    <div id='net'>
+
+    </div>
 </div>
+<div id='net1'>
+
+    <div class="section">
+        <h3 class="sectionheader">Access point</h3>
+        <div class="sep"></div>
+        <br>
+        <label class="seplabel" for="apssid">SSID:</label><input  class="sepinput" id="apssid" type="text" disabled/><br />
+        <label  class="seplabel" for="appass">Password:</label><input class="sepinput" id="appass" type="password" disabled/><br />
+        <button class="sepbutton" onclick="apbutton(this)">Edit</button>
+    </div>
+    <div class="section">
+        <h3 class="sectionheader">UDP ports</h3>
+        <div class="sep"></div>
+        <br>
+        <label class="seplabel" for="port1">Port 1:</label><input  class="sepinput" id="port1" type="number" min="1" max="65535" disabled/><br />
+        <label  class="seplabel" for="port2">Port 2:</label><input class="sepinput" id="port2" type="number" min="1" max="65535" disabled/><br />
+        <button class="sepbutton" onclick="udpbutton(this)">Edit</button>
+
+    </div>
+    <div class="section">
+        <h3 class="sectionheader" style="cursor: pointer" id="transparentheader" onclick="toggletransparent(this)">Transparent mode - enabled</h3>
+        <div class="sep"></div>
+        <br>
+        <label class="seplabel" id="transparentlabel" for="reader">Reader:</label><input  class="sepinput" id="reader" type="number" min="1" max="2" disabled/><br />
+        <button class="sepbutton" id="transparentbutton" onclick="transparentbutton(this)">Edit</button>
+
+    </div>
+    <div class="section">
+        <h3 class="sectionheader">Login</h3>
+        <div class="sep"></div>
+        <br>
+        <label class="seplabel" for="loginusername">Username:</label><input  class="sepinput" id="loginusername" disabled type="text" /><br />
+        <label  class="seplabel" for="loginpassword">Password:</label><input class="sepinput" id="loginpassword" type="password" disabled/><br />
+        <button class="sepbutton" onclick="loginbutton(this)">Edit</button>
+
+
+    </div>
+</div>
+
 </body>
 </html>

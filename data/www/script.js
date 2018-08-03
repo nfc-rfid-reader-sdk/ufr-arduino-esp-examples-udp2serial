@@ -3,6 +3,7 @@ var img2 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AA
 var img3 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JQAAgIMAAPn/AACA6QAAdTAAAOpgAAA6mAAAF2+SX8VGAAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAADdcAAA3XAUIom3gAAAAHdElNRQfiBRMGCh2AcJ/JAAADs0lEQVRIx+WUW2hcRRjHfzNnztk9zWWTNLVJ7NKkkcSS1ppqW0hLa6NWxQvog0UESxURKj4IVYpIhT4YUCko9aEQ8YJaSn1pQbRqUBCURmuIVMqUNGlNTDYJm8vu5iS75+wZH3Jr6rbmVZx5Geby+/7/+WY++M83sbxtGsAhQgQLg8cUpnF5AA2KaprYRAPVxHAI6aeN89AIqH+JWsw2HmUXdZQgF5a20s352aG6yfEI23mO+1k1N5XFw8NHkqRzfp+6Yew4B9hHNWBI8ju/cIF+xskhmWJg1kDBO9Ag2MoRWlEYrnCG03TLCRM2LCcLGgR7eJuNwCSnOE43/mPERVfUj4WlJkqgBicn1nK1EEAD7OE9GoFLvMkX/tQGKlbMbAh2hlvMOlNBhFB2RF7Nj84UEq/Rm/Vv2mijz+mdWjxOZcTdrT6RAyLAzHfxV7TZucElVnGYZuBXXkp3PkC2Jvtifn9YDSBmxBhJ4YH8wenNk7seoMHiWR4C+jiU7NxF5PaZtuBhbIwclB2yQ/1hDVtZg0yZbKqg/Lv1ZW10Rh/okY0UNahvCDEirT52W1a7sKVAFq614PAM64AvOXE0HLwleyS4DyGHVFvJR8m0YqV9scpdY2IiY3eH6UwBBXfqXm10Qt/7LTWWfUhkMTIR3RdXZax03B3qmOwSIyIlR+2DdbK0gIFXdKCN/lwX7cC9S/ZghGcfXGMXEyt3Xpf9i1lQH6xyiv9hIUYrFh5neqe08p8K60GejX445ttlU2/kXzBRjEwKLUYZs9tHc6vJXAeopQno49zXTK0NHwQxrtrTybgc3p9/3kTFtHXabne6paeCslxu7h1ea+BJ7WmjT1xym3D2Cg9jnS0tj+LeITVGzKi3YuXQepMs1BMFLrZPZ0S42bgY+WNq3OA8Ym4D+V30HX+80v55U2Qj485P6ZE6+gAWioRFDYIcf7Yw7pp6EJ64oIiVhtuNFJ71WWakRqaezp7KHc99On3MjQ/NHZQLSmKAz0SavGMqAE8mJPkysxbEsOqKMFgbvBzWGtsUBU/4e2coXwIQ2IDBz2FZIgIEZCEfNS6QEWlDeKuJz+s166vsYAnA4M9iHMzsP1HYID0xCWSMLxAJMa87lD1Dvr0EEDAGCGQ1tie6RFZelqMSN6GOqpP2u2VJh5Je9b4YEqHIWl/ZJx12LxYUDXAPh0nwWnhlPUXVQYvVW9mdCVcQkSmnMueFVylBRaa3hc1yTH2fGagisQgADZJyfFLzxfJ/1P4GHvGKGujvQp4AAAAldEVYdGRhdGU6Y3JlYXRlADIwMTgtMDUtMTlUMDY6MTA6MjktMDQ6MDBIgAcRAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDE4LTA1LTE5VDA2OjEwOjI5LTA0OjAwOd2/rQAAAABJRU5ErkJggg==';
 var img4 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JQAAgIMAAPn/AACA6QAAdTAAAOpgAAA6mAAAF2+SX8VGAAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAADdcAAA3XAUIom3gAAAAHdElNRQfiBRMGCyDBA+KZAAACpUlEQVRIx93UT2zURRwF8M/+7yK1W6SkgI3ECiZWjBYRJMZGJOrByMVAjJpw8IIXa2LEeDKexAQjid6qwcQ2MWliuKDEmzFR/oSoNIpgJbZQt6Fmi3a3212648HftiC7gEd9c/hlZr7vzZt5vxn+84j9i9qUjLSkYFZRuHGBpE497rHOSm3Sas7Z63h98tpY6n5P6dOtVfyy8R9vRCBjixds0xH5nDOrpCqh4OiivWbostsuKxFMGXHMiHEFFXElY9fb9yafqwpqztrvEbdcsYHrJvO47wTBtAEbpaLxFit0u8udbr62wGNOCYKf7HITyNqg36CvnfarswYsb07vdUIQHNUnhrSHfWhMVVhoE3qb0TsdFATHbIr6bzoX0Wad970jjtgr15ie8LqKYNSjYJ1hFUHNuI88r1eXFTq0NFt/o1HBjN3iWOszNcEfDniwOWkRae8Jgk/k0GFITXDei1pByioP2GazpY0F7vOLIG8rEl5VFkx4VhIpW7zruLyLJvU3/iv2mBcMWoJeZwRFL0si5zVjl6UwIH01PeewoGgHkt4WBMOWoc07SoKaC77yqQ9sbrT+vcYFJ61Bt5OCKU8g7iVFQcmgrZZbItP4BHYqCYa0YIeS4JAc1jslKHtLeyPa4m28QxY/KIvZICv40jSetBaH7VOQtF6Pgm/8/k+BpFWoGENWN4pG0OohcUUfuyDuGW+41ZyD9pj4m1iPI6ENVdNIW4aiSbS7Db/5Fmu84nZprXZ6uu4gvvBNoaaKhAyqymiRxZ9msFpXVJ3SU/deFwguLcjMqyApiZKLmFHBpHxUPe9nl64UqEbHEkPJCWVnTCFvnyH7FTDqfXk1cw4ZvjqPPl84EJnstN3d0VMal1l4/DP69HvO6kaBxrQ3uyT/c/wFmALh470ZkEAAAAAldEVYdGRhdGU6Y3JlYXRlADIwMTgtMDUtMTlUMDY6MTE6MzItMDQ6MDBp7zhLAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDE4LTA1LTE5VDA2OjExOjMyLTA0OjAwGLKA9wAAAABJRU5ErkJggg==';
 var connssid = 0;
+var transparentdevice;
 
 $(document).ready(function () {
     if (getCookie("token") == "") {
@@ -70,7 +71,7 @@ function scan(mod) {
             }
             //var resp = JSON.parse(json);
 
-            document.getElementById("net").innerHTML = "<h3 onclick='scan(1)' style='cursor: pointer'>AVAILABLE NETWORKS (" + resp.result.length + "): &#x21bb;</h3>";
+            document.getElementById("net").innerHTML = "<h3 onclick='scan(1)' style='cursor: pointer'>AVAILABLE NETWORKS (" + (resp.result.length-1)+ "): &#x21bb;</h3>";
             resp.result.forEach(function (e) {
                 var parent = document.getElementById("net");
 
@@ -131,7 +132,13 @@ function scan(mod) {
                 img.setAttribute("height", "32");
                 img.src = setimg(Math.abs(dbm));
                 ssid.innerHTML = e.ssid + " | " + e.encryption;
-                channel.innerHTML = "CH " + e.channel;
+                if (e.channel.length == 1) {
+                    channel.innerHTML = "CH&nbsp;&nbsp;" + e.channel;
+                }
+                else {
+                    channel.innerHTML = "CH " + e.channel;
+                }
+
                 innerBar.style.width = perc + "%";
                 innerBar.style.backgroundColor = colors(Math.abs(dbm));
                 innerBar.innerHTML = dbm + " dBm";
@@ -200,12 +207,13 @@ function onConnect(ssid, encryption) {
     if (encryption != "Open") {
         dialog.prompt({
             title: "Connect to " + ssid,
-            message: "",
+
             button: "Connect",
             required: false,
             input: {
                 type: "password",
-                placeholder: ssid + " password..."
+                placeholder: ssid + " password...",
+                value: ""
             },
             callback: function (value) {
                 if ($.trim(value) === "") {
@@ -223,13 +231,15 @@ function onConnect(ssid, encryption) {
                             xhr.setRequestHeader("Authorization", "Basic " + getCookie("token"));
                         },
                         success: function (resp) {
-                            if (resp == "3") {
+                            if (resp.localeCompare("1") == 0) {
+                                console.log("conn");
                                 connssid = ssid;
                                 scan(0);
                             }
                             else {
+                                console.log("non");
                                 dialog.alert({
-                                    title: "Cannot connect to" + nssid,
+                                    title: "Cannot connect to " + ssid,
                                     message: ""
                                 });
                                 scan(1);
@@ -277,3 +287,257 @@ function colors(dbm) {
         return '#c0392b';
     }
 }
+
+function informations() {
+    $.ajax({
+        url: 'info',
+        type: 'GET',
+        contentType: 'json',
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("Authorization", "Basic " + getCookie("token"));
+        },
+        success: function (resp) {
+            dialog.alert({
+                title: "Info",
+                message: "Mode: " + resp.mode + "<br>IP address: " + resp.ip + "<br>MAC address: " + resp.mac + "<br>Serial numbers: " + resp.serial1 + "\\" + resp.serial2
+            });
+        }
+    });
+}
+
+var conf = 1;
+
+function change() {
+    if (conf == 0) {
+        conf = 1;
+
+        $("#net1").fadeOut();
+        $("#wifi").fadeIn();
+
+        $("#settings").html("Other settings");
+    }
+    else {
+        conf = 0;
+        $.ajax({
+            url: 'info',
+            type: 'GET',
+            contentType: 'json',
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("Authorization", "Basic " + getCookie("token"));
+            },
+            success: function (resp) {
+                document.getElementById("apssid").value = resp.ap;
+                document.getElementById("appass").value  = resp.pass;
+                document.getElementById("port1").value  = resp.port1;
+                document.getElementById("port2").value  = resp.port2;
+                document.getElementById("reader").value  = resp.device;
+                document.getElementById("loginusername").value  = resp.authuser;
+                document.getElementById("loginpassword").value  = resp.authpass;
+
+                if(resp.transparent == 1)
+                {
+                    document.getElementById("transparentheader").innerHtml = "Transparent mode - enabled";
+                    $("#transparentlabel").show();
+                    $("#reader").show();
+                    $("#transparentbutton").show();
+                }
+                else
+                {
+                    document.getElementById("transparentheader").innerHtml = "Transparent mode - disabled";
+                    $("#transparentlabel").hide();
+                    $("#reader").hide();
+                    $("#transparentbutton").hide();
+                }
+
+                $("#wifi").fadeOut();
+                $("#net1").fadeIn();
+
+                $("#settings").html("WiFi settings");
+
+
+            }
+        });
+
+
+    }
+
+
+}
+
+function toggletransparent(e) {
+    if (e.innerHTML == "Transparent mode - enabled")
+    {
+        $.ajax({
+            url: 'toggletransparent',
+            type: 'GET',
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("Authorization", "Basic " + getCookie("token"));
+            },
+            success: function (resp) {
+                if(resp=="0")
+                {
+                    e.innerHTML = "Transparent mode - disabled";
+                }
+
+
+            }
+        });
+
+
+    }
+    else
+    {
+        $.ajax({
+            url: 'toggletransparent',
+            type: 'GET',
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("Authorization", "Basic " + getCookie("token"));
+            },
+            success: function (resp) {
+                if(resp=="1")
+                {
+                    e.innerHTML = "Transparent mode - enabled"
+                }
+
+
+            }
+        });
+
+    }
+    $("#transparentlabel").fadeToggle();
+    $("#reader").fadeToggle();
+    $("#transparentbutton").fadeToggle();
+}
+
+function apbutton(e) {
+    if(e.innerHTML == "Edit")
+    {
+        document.getElementById("apssid").disabled = false;
+        document.getElementById("appass").disabled = false;
+        e.innerHTML = "Save";
+    }
+    else
+    {
+        $.ajax({
+            url: 'changeap',
+            type: 'POST',
+            data: {ssid: document.getElementById("apssid").value, pass: document.getElementById("appass").value},
+
+            beforeSend: function (xhr) {
+                 xhr.setRequestHeader("Authorization", "Basic " + getCookie("token"));
+            },
+            success: function (resp) {
+                if (resp.localeCompare("1") == 0) {
+                    document.getElementById("apssid").disabled = true;
+                    document.getElementById("appass").disabled = true;
+                    e.innerHTML = "Edit";
+                    location.reload();
+                }
+
+            }
+        });
+
+    }
+}
+
+function udpbutton(e) {
+    if(e.innerHTML == "Edit")
+    {
+        document.getElementById("port1").disabled = false;
+        document.getElementById("port2").disabled = false;
+        e.innerHTML = "Save";
+    }
+    else
+    {
+        $.ajax({
+            url: 'setport',
+            type: 'POST',
+            data: {port1: document.getElementById("port1").value, port2: document.getElementById("port2").value},
+
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("Authorization", "Basic " + getCookie("token"));
+            },
+            success: function (resp) {
+                if (resp.localeCompare("1") == 0) {
+                    document.getElementById("port1").disabled = true;
+                    document.getElementById("port2").disabled = true;
+                    e.innerHTML = "Edit";
+                }
+
+            }
+        });
+
+    }
+}
+
+function transparentbutton(e) {
+    if (e.innerHTML == "Edit") {
+        transparentdevice = document.getElementById("reader").value;
+        document.getElementById("reader").disabled = false;
+        e.innerHTML = "Save";
+    }
+    else {
+        if(transparentdevice==document.getElementById("reader").value)
+        {
+            document.getElementById("reader").disabled = true;
+            e.innerHTML = "Edit";
+        }
+        else {
+            $.ajax({
+                url: 'changetransparent',
+                type: 'GET',
+                beforeSend: function (xhr) {
+
+                    xhr.setRequestHeader("Authorization", "Basic " + getCookie("token"));
+                },
+                success: function (resp) {
+                    if (resp.localeCompare(document.getElementById("reader").value) == 0) {
+                        transparentdevice=document.getElementById("reader").value;
+                        document.getElementById("reader").disabled = true;
+                        e.innerHTML = "Edit";
+                    }
+
+                }
+            });
+        }
+    }
+}
+function loginbutton(e) {
+    if(e.innerHTML == "Edit")
+    {
+        document.getElementById("loginusername").disabled = false;
+        document.getElementById("loginpassword").disabled = false;
+        e.innerHTML = "Save";
+    }
+    else
+    {
+        $.ajax({
+            url: 'changeauth',
+            type: 'POST',
+            data: {username: document.getElementById("loginusername").value, password: document.getElementById("loginpassword").value},
+
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("Authorization", "Basic " + getCookie("token"));
+            },
+            success: function (resp) {
+                if (resp.localeCompare("1") == 0) {
+                    document.getElementById("loginusername").disabled = true;
+                    document.getElementById("loginpassword").disabled = true;
+                    e.innerHTML = "Edit";
+                    delete_cookie("token");
+                    location.reload();
+                }
+
+            }
+        });
+
+    }
+
+}
+
+function delete_cookie( name ) {
+    document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+}
+
+
+
