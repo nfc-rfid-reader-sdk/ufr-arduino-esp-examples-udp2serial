@@ -11,6 +11,7 @@
 #include <Ethernet.h>
 #include <EthernetUdp.h>
 #include <ESP8266EthernetWebServer.h>
+#include <HTTPClient.h>
 #include "config.h"
 #include "files.h"
 
@@ -79,10 +80,10 @@ void core1Wifi()
   {
     core1WifiMaster();
   }
-  /* else
-    {
-     core1WifiSlave();
-    }*/
+  else
+  {
+    core1WifiSlave();
+  }
 
 }
 
@@ -138,11 +139,64 @@ void core1WifiMaster()
   vTaskDelay(1);
 }
 String tmp = "";
-/*void core1WifiSlave()
+
+void core1WifiSlave()
+{
+
+  uint8_t cardID[10];
+
+  uint8_t length = 0;
+  uint8_t code = getCardID1(cardID, &length);
+  if (code == 0)
   {
 
+    String buff = "";
+    for (int i = 0; i < length; i++)
+    {
+      if (unsigned(cardID[i]) < 16)
+      {
+        buff += "0";
+      }
+      buff += String(unsigned(cardID[i]), HEX) + ":";
+    }
+    buff = buff.substring(0, buff.length() - 1);
+    buff.toUpperCase();
+    if (!buff.equals(tmp))
+    {
+      HTTPClient http;
 
-  }*/
+      http.begin(host);
+      http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+
+      int httpCode = http.POST("UID=" + buff + "&SN=" + serialNumber1);
+      if (httpCode == 200)
+      {
+        String payload = http.getString();
+        uint8_t light = String(payload.charAt(0)).toInt();
+        uint8_t beep = String(payload.charAt(2)).toInt();
+        uiSignal1(light, beep);
+
+        vTaskDelay(pdMS_TO_TICKS(10));
+        tmp = buff;
+        http.end();
+      }
+      else
+      {
+        uiSignal1(4, 4);
+        vTaskDelay(pdMS_TO_TICKS(10));
+        tmp = buff;
+        http.end();
+      }
+    }
+  }
+  else
+  {
+    tmp = "";
+  }
+
+  vTaskDelay(pdMS_TO_TICKS(50));
+
+}
 
 void core1Ethernet()
 {
@@ -222,6 +276,10 @@ void core2Wifi()
   {
     core2WifiMaster();
   }
+  else
+  {
+    core2WifiSlave();
+  }
 }
 
 void core2WifiMaster()
@@ -276,6 +334,66 @@ void core2WifiMaster()
 
 #endif
   vTaskDelay(1);
+}
+
+String tmp1 = "";
+
+void core2WifiSlave()
+{
+
+  uint8_t cardID[10];
+
+  uint8_t length = 0;
+  uint8_t code = getCardID2(cardID, &length);
+  if (code == 0)
+  {
+
+    String buff = "";
+    for (int i = 0; i < length; i++)
+    {
+      if (unsigned(cardID[i]) < 16)
+      {
+        buff += "0";
+      }
+      buff += String(unsigned(cardID[i]), HEX) + ":";
+    }
+    buff = buff.substring(0, buff.length() - 1);
+    buff.toUpperCase();
+    if (!buff.equals(tmp1))
+    {
+      HTTPClient http;
+
+      http.begin(host);
+      http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+
+      int httpCode = http.POST("UID=" + buff + "&SN=" + serialNumber2);
+      if (httpCode == 200)
+      {
+        String payload = http.getString();
+        uint8_t light = String(payload.charAt(0)).toInt();
+        uint8_t beep = String(payload.charAt(2)).toInt();
+        uiSignal2(light, beep);
+
+        vTaskDelay(pdMS_TO_TICKS(10));
+        tmp1 = buff;
+        http.end();
+      }
+      else
+      {
+        uiSignal2(4, 4);
+        vTaskDelay(pdMS_TO_TICKS(10));
+        tmp1 = buff;
+        http.end();
+      }
+    }
+  }
+  else
+  {
+    tmp1 = "";
+  }
+
+  vTaskDelay(pdMS_TO_TICKS(50));
+
 }
 
 void core2Ethernet()
@@ -486,66 +604,66 @@ int parseString1(String str, uint8_t *buff)
 void serverHandle()
 {
 
- /* server.on("/", HTTP_GET, []() {
-    server.send(200, "text/html", String(login_html));
-  });
-  server.on("/fader.js", HTTP_GET, []() {
-    server.send(200, "text/javascript", String(fader_js));
-  });
-  server.on("/nanoajax.js", HTTP_GET, []() {
-    server.send(200, "text/javascript", String(nanoajax_js));
-  });
-  server.on("/domready.js", HTTP_GET, []() {
-    server.send(200, "text/javascript", String(domready_js));
-  });
-  server.on("/login.js", HTTP_GET, []() {
-    server.send(200, "text/javascript", String(login_js));
-  });
-  server.on("/login.css", HTTP_GET, []() {
-    server.send(200, "text/css", String(login_css));
-  });
-  server.on("/main", HTTP_GET, []() {
-    server.send(200, "text/html", String(main_html));
-  });
-  server.on("/main.css", HTTP_GET, []() {
-    server.send(200, "text/css", String(main_css));
-  });
-  server.on("/main1.css", HTTP_GET, []() {
-    server.send(200, "text/css", String(main1_css));
-  });
-  server.on("/main2.css", HTTP_GET, []() {
-    server.send(200, "text/css", String(main2_css));
-  });
-  server.on("/dom.js", HTTP_GET, []() {
-    server.send(200, "text/javascript", String(dom_js));
-  });
+  /* server.on("/", HTTP_GET, []() {
+     server.send(200, "text/html", String(login_html));
+    });
+    server.on("/fader.js", HTTP_GET, []() {
+     server.send(200, "text/javascript", String(fader_js));
+    });
+    server.on("/nanoajax.js", HTTP_GET, []() {
+     server.send(200, "text/javascript", String(nanoajax_js));
+    });
+    server.on("/domready.js", HTTP_GET, []() {
+     server.send(200, "text/javascript", String(domready_js));
+    });
+    server.on("/login.js", HTTP_GET, []() {
+     server.send(200, "text/javascript", String(login_js));
+    });
+    server.on("/login.css", HTTP_GET, []() {
+     server.send(200, "text/css", String(login_css));
+    });
+    server.on("/main", HTTP_GET, []() {
+     server.send(200, "text/html", String(main_html));
+    });
+    server.on("/main.css", HTTP_GET, []() {
+     server.send(200, "text/css", String(main_css));
+    });
+    server.on("/main1.css", HTTP_GET, []() {
+     server.send(200, "text/css", String(main1_css));
+    });
+    server.on("/main2.css", HTTP_GET, []() {
+     server.send(200, "text/css", String(main2_css));
+    });
+    server.on("/dom.js", HTTP_GET, []() {
+     server.send(200, "text/javascript", String(dom_js));
+    });
 
-  server.on("/main.js", HTTP_GET, []() {
-    server.send(200, "text/javascript", String(main_js));
-  });
-  server.on("/main1.js", HTTP_GET, []() {
-    server.send(200, "text/javascript", String(main1_js));
-  });
-  server.on("/main2.js", HTTP_GET, []() {
-    server.send(200, "text/javascript", String(main2_js));
-  });
-  server.on("/mainwifionly.js", HTTP_GET, []() {
-    server.send(200, "text/javascript", String(mainwifionly_js));
-  });*/
-  
-    server.serveStatic("/", SPIFFS, "/www/login.html");
-   /* server.serveStatic("/domready.js", SPIFFS, "/www/domready.js");
+    server.on("/main.js", HTTP_GET, []() {
+     server.send(200, "text/javascript", String(main_js));
+    });
+    server.on("/main1.js", HTTP_GET, []() {
+     server.send(200, "text/javascript", String(main1_js));
+    });
+    server.on("/main2.js", HTTP_GET, []() {
+     server.send(200, "text/javascript", String(main2_js));
+    });
+    server.on("/mainwifionly.js", HTTP_GET, []() {
+     server.send(200, "text/javascript", String(mainwifionly_js));
+    });*/
+
+  server.serveStatic("/", SPIFFS, "/www/login.html");
+  /* server.serveStatic("/domready.js", SPIFFS, "/www/domready.js");
     server.serveStatic("/nanoajax.js", SPIFFS, "/www/nanoajax.js");*/
 
-    server.serveStatic("/main", SPIFFS, "/www/main.html");
-    server.serveStatic("/jquery.min.js", SPIFFS, "/www/jquery.min.js");
-    server.serveStatic("/script.js", SPIFFS, "/www/script.js");
-    server.serveStatic("/style.css", SPIFFS, "/www/style.css");
-    server.serveStatic("/jquery.dialog.min.css", SPIFFS, "/www/jquery.dialog.min.css");
-    server.serveStatic("/jquery.dialog.min.js", SPIFFS, "/www/jquery.dialog.min.js");
-  
+  server.serveStatic("/main", SPIFFS, "/www/main.html");
+  server.serveStatic("/jquery.min.js", SPIFFS, "/www/jquery.min.js");
+  server.serveStatic("/script.js", SPIFFS, "/www/script.js");
+  server.serveStatic("/style.css", SPIFFS, "/www/style.css");
+  server.serveStatic("/jquery.dialog.min.css", SPIFFS, "/www/jquery.dialog.min.css");
+  server.serveStatic("/jquery.dialog.min.js", SPIFFS, "/www/jquery.dialog.min.js");
 
-  /* server.on("/togglemode", HTTP_GET, []() {
+
+   server.on("/togglemode", HTTP_GET, []() {
      if (!server.authenticate(http_username.c_str(), http_password.c_str()))
        return server.requestAuthentication();
      preferences.begin("apsettings", false);
@@ -555,7 +673,7 @@ void serverHandle()
      master = !m;
      server.send(200, "text/plain", String(!m));
      ESP.restart();
-    });*/
+    });
 
   server.on("/toggletransparent", HTTP_GET, []() {
     if (!server.authenticate(http_username.c_str(), http_password.c_str()))
@@ -622,6 +740,38 @@ void serverHandle()
       digitalWrite(LED_BUILTIN, LOW);
 
       ESP.restart();
+    }
+    else
+    {
+      server.send(200, "text/plain", "0");
+    }
+  });
+
+   server.on("/changehost", HTTP_POST, []() {
+    if (!server.authenticate(http_username.c_str(), http_password.c_str()))
+      return server.requestAuthentication();
+    int paramsNr = server.args();
+    String h = "";
+  
+    for (int i = 0; i < paramsNr; i++)
+    {
+
+      if (server.argName(i) == "host")
+      {
+        h = server.arg(i);
+      }
+    
+    }
+
+    if (h.length() > 0)
+    {
+      preferences.begin("apsettings", false);
+      preferences.putString("host", h);
+      preferences.end();
+      host = h;
+      server.send(200, "text/plain", "1");
+      delay(100);
+      
     }
     else
     {
@@ -889,6 +1039,8 @@ void serverHandle()
     digitalWrite(LED_BUILTIN, HIGH);
     server.send(200, "text/plain", "1");
   });
+
+
 }
 
 void serverHandle1()
@@ -978,37 +1130,37 @@ void ethernetServerHandle()
      ESP.restart();
     });*/
 
-   ethernetServer.on("/", HTTP_GET, []() {
-     ethernetServer.send(200, "text/html", String(login_html));
-    });
+  ethernetServer.on("/", HTTP_GET, []() {
+    ethernetServer.send(200, "text/html", String(login_html));
+  });
 
-    ethernetServer.on("/login.css", HTTP_GET, []() {
-     ethernetServer.send(200, "text/css", String(login_css));
-    });
+  ethernetServer.on("/login.css", HTTP_GET, []() {
+    ethernetServer.send(200, "text/css", String(login_css));
+  });
 
-    ethernetServer.on("/login.js", HTTP_GET, []() {
-     ethernetServer.send(200, "text/javascript", String(login_js));
-    });
+  ethernetServer.on("/login.js", HTTP_GET, []() {
+    ethernetServer.send(200, "text/javascript", String(login_js));
+  });
 
-    ethernetServer.on("/main", HTTP_GET, []() {
-     ethernetServer.send(200, "text/html", String(main_html));
-    });
+  ethernetServer.on("/main", HTTP_GET, []() {
+    ethernetServer.send(200, "text/html", String(main_html));
+  });
 
-    ethernetServer.on("/style.css", HTTP_GET, []() {
-     ethernetServer.send(200, "text/css", String(style_css));
-    });
+  ethernetServer.on("/style.css", HTTP_GET, []() {
+    ethernetServer.send(200, "text/css", String(style_css));
+  });
 
-    ethernetServer.on("/script.js", HTTP_GET, []() {
-     ethernetServer.send(200, "text/javascript", String(script_js));
-    });
+  ethernetServer.on("/script.js", HTTP_GET, []() {
+    ethernetServer.send(200, "text/javascript", String(script_js));
+  });
 
-    ethernetServer.on("/script1.js", HTTP_GET, []() {
-     ethernetServer.send(200, "text/javascript", String(script1_js));
-    });
+  ethernetServer.on("/script1.js", HTTP_GET, []() {
+    ethernetServer.send(200, "text/javascript", String(script1_js));
+  });
 
-    ethernetServer.on("/script2.js", HTTP_GET, []() {
-     ethernetServer.send(200, "text/javascript", String(script2_js));
-    });
+  ethernetServer.on("/script2.js", HTTP_GET, []() {
+    ethernetServer.send(200, "text/javascript", String(script2_js));
+  });
 
   ethernetServer.on("/toggletransparent", HTTP_GET, []() {
     if (!ethernetServer.authenticate(http_username.c_str(), http_password.c_str()))
@@ -1341,14 +1493,14 @@ bool debug(uint8_t *in, int num)
       if (num == 1)
       {
         digitalWrite(SERIAL1_RESETPIN, HIGH);
-        vTaskDelay(10);
+        vTaskDelay(pdMS_TO_TICKS(10));
         digitalWrite(SERIAL1_RESETPIN, LOW);
       }
       else if (num == 2)
       {
 #ifdef DUAL_MODE
         digitalWrite(SERIAL2_RESETPIN, HIGH);
-        vTaskDelay(10);
+        vTaskDelay(pdMS_TO_TICKS(10));
         digitalWrite(SERIAL2_RESETPIN, LOW);
 
 #endif
@@ -1609,6 +1761,7 @@ void wifiSetup()
   http_username = preferences.getString("http_username", "ufr");
   http_password = preferences.getString("http_password", "ufr");
   SERIAL1_UDP_PORT = preferences.getInt("port1", 8881);
+  host = preferences.getString("host", "");
 
 #ifdef DUAL_MODE
   SERIAL2_UDP_PORT = preferences.getInt("port2", 8882);
@@ -1796,8 +1949,8 @@ String getSerialNumber(int num)
   return Sn;
 }
 
-/*
-  uint8_t getCardID1(uint8_t cardID[10], uint8_t *lengthc1) {
+
+uint8_t getCardID1(uint8_t *cardID, uint8_t *lengthc1) {
   uint8_t cmd[7] = {0x55, 0x2C, 0xAA, 0x00, 0x00, 0x00, 0xDA};
   uint8_t rsp[7];
   uint8_t ext[11];
@@ -1823,7 +1976,7 @@ String getSerialNumber(int num)
     }
     else
     {
-       lengthc1 = rsp[5];
+      *lengthc1 = rsp[5];
       for (uint8_t i = 0; i < *lengthc1; i++)
         cardID[i] = ext[i];
       return 0;
@@ -1836,9 +1989,9 @@ String getSerialNumber(int num)
 
 
 
-  }
+}
 
-  uint8_t getCardID2(uint8_t cardID[10], uint8_t *lengthc2) {
+uint8_t getCardID2(uint8_t *cardID, uint8_t *lengthc1) {
   uint8_t cmd[7] = {0x55, 0x2C, 0xAA, 0x00, 0x00, 0x00, 0xDA};
   uint8_t rsp[7];
   uint8_t ext[11];
@@ -1864,9 +2017,8 @@ String getSerialNumber(int num)
     }
     else
     {
-
-       lengthc2 = rsp[5];
-      for (uint8_t i = 0; i < *lengthc2; i++)
+      *lengthc1 = rsp[5];
+      for (uint8_t i = 0; i < *lengthc1; i++)
         cardID[i] = ext[i];
       return 0;
     }
@@ -1878,7 +2030,28 @@ String getSerialNumber(int num)
 
 
 
-  }
-*/
+}
+
+void uiSignal1(uint8_t beep, uint8_t light)
+{
+  uint8_t cs = (0xd9 ^ beep ^ light) + 0x07;
+  uint8_t cmd[7] = {0x55, 0x26, 0xAA, 0x00, beep, light, cs};
+  Serial1.flush();
+  Serial1.write(cmd, 7);
+
+  if (Serial1.available()) {}
+}
+
+void uiSignal2(uint8_t beep, uint8_t light)
+{
+  uint8_t cs = (0xd9 ^ beep ^ light) + 0x07;
+  uint8_t cmd[7] = {0x55, 0x26, 0xAA, 0x00, beep, light, cs};
+  Serial2.flush();
+  Serial2.write(cmd, 7);
+
+  if (Serial2.available()) {}
+}
+
+
 
 

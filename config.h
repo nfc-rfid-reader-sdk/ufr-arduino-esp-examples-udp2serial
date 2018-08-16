@@ -116,5 +116,6 @@ String serialNumber2;
 
 byte ethernetMac[6];
 
+String host;
 #endif
 
